@@ -121,23 +121,33 @@ public class GeoJSONShapeParser {
         } else if ("linestring".equals(shapeType)) {
             return new JtsGeometry(GEOMETRY_FACTORY.createLineString(toCoordinates(node)));
         } else if ("polygon".equals(shapeType)) {
-            LinearRing shell = GEOMETRY_FACTORY.createLinearRing(toCoordinates(node.children.get(0)));
-            LinearRing[] holes = null;
-            if (node.children.size() > 1) {
-                holes = new LinearRing[node.children.size() - 1];
-                for (int i = 0; i < node.children.size() - 1; i++) {
-                    holes[i] = GEOMETRY_FACTORY.createLinearRing(toCoordinates(node.children.get(i + 1)));
-                }
-            }
-            return new JtsGeometry(GEOMETRY_FACTORY.createPolygon(shell, holes));
+            return new JtsGeometry(buildPolygon(node));
         } else if ("multipoint".equals(shapeType)) {
             return new JtsGeometry(GEOMETRY_FACTORY.createMultiPoint(toCoordinates(node)));
         } else if ("envelope".equals(shapeType)) {
             Coordinate[] coordinates = toCoordinates(node);
             return new RectangleImpl(coordinates[0].x, coordinates[1].x, coordinates[1].y, coordinates[0].y);
+        } else if ("multipolygon".equals(shapeType)) {
+            Polygon[] polygons = new Polygon[node.children.size()];
+            for (int i = 0; i < node.children.size(); i++) {
+                polygons[i] = buildPolygon(node.children.get(i));
+            }
+            return new JtsGeometry(GEOMETRY_FACTORY.createMultiPolygon(polygons));
         }
 
         throw new UnsupportedOperationException("ShapeType [" + shapeType + "] not supported");
+    }
+
+    private static Polygon buildPolygon(CoordinateNode node) {
+        LinearRing shell = GEOMETRY_FACTORY.createLinearRing(toCoordinates(node.children.get(0)));
+        LinearRing[] holes = null;
+        if (node.children.size() > 1) {
+            holes = new LinearRing[node.children.size() - 1];
+            for (int i = 0; i < node.children.size() - 1; i++) {
+                holes[i] = GEOMETRY_FACTORY.createLinearRing(toCoordinates(node.children.get(i + 1)));
+            }
+        }
+        return GEOMETRY_FACTORY.createPolygon(shell, holes);
     }
 
     /**

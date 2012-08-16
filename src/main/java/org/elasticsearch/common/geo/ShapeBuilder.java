@@ -131,7 +131,8 @@ public class ShapeBuilder {
      */
     public static class PolygonBuilder {
 
-        private final List<Point> points = new ArrayList<Point>();
+        private final List<Coordinate> points = new ArrayList<Coordinate>();
+        private final List<LinearRing> holes = new ArrayList<LinearRing>();
 
         /**
          * Adds a point to the Polygon
@@ -141,7 +142,16 @@ public class ShapeBuilder {
          * @return this
          */
         public PolygonBuilder point(double lon, double lat) {
-            points.add(new PointImpl(lon, lat));
+            points.add(new Coordinate(lon, lat));
+            return this;
+        }
+
+        public LinearRingBuilder newHole() {
+            return new LinearRingBuilder(this);
+        }
+
+        private PolygonBuilder addHole(LinearRing linearRing) {
+            holes.add(linearRing);
             return this;
         }
 
@@ -160,13 +170,36 @@ public class ShapeBuilder {
          * @return Built polygon
          */
         public Polygon toPolygon() {
-            Coordinate[] coordinates = new Coordinate[points.size()];
-            for (int i = 0; i < points.size(); i++) {
-                coordinates[i] = new Coordinate(points.get(i).getX(), points.get(i).getY());
-            }
+            LinearRing ring = GEOMETRY_FACTORY.createLinearRing(points.toArray(new Coordinate[points.size()]));
+            LinearRing[] holes = this.holes.isEmpty() ? null : this.holes.toArray(new LinearRing[this.holes.size()]);
+            return GEOMETRY_FACTORY.createPolygon(ring, holes);
+        }
+    }
 
-            LinearRing ring = GEOMETRY_FACTORY.createLinearRing(coordinates);
-            return GEOMETRY_FACTORY.createPolygon(ring, null);
+    public static class LinearRingBuilder {
+
+        private final List<Coordinate> points = new ArrayList<Coordinate>();
+
+        private final PolygonBuilder polygonBuilder;
+
+        private LinearRingBuilder(PolygonBuilder polygonBuilder) {
+            this.polygonBuilder = polygonBuilder;
+        }
+
+        /**
+         * Adds a point to the Polygon
+         *
+         * @param lon Longitude of the point
+         * @param lat Latitude of the point
+         * @return this
+         */
+        public LinearRingBuilder point(double lon, double lat) {
+            points.add(new Coordinate(lon, lat));
+            return this;
+        }
+
+        public PolygonBuilder endHole() {
+            return polygonBuilder.addHole(GEOMETRY_FACTORY.createLinearRing(points.toArray(new Coordinate[points.size()])));
         }
     }
 }

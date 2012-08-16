@@ -40,6 +40,8 @@ public class GeoJSONShapeSerializer {
                 serializePolygon((Polygon) geometry, builder);
             } else if (geometry instanceof MultiPoint) {
                 serializeMultiPoint((MultiPoint) geometry, builder);
+            } else if (geometry instanceof MultiPolygon) {
+                serializeMulitPolygon((MultiPolygon) geometry, builder);
             } else {
                 throw new ElasticSearchIllegalArgumentException("Geometry type [" + geometry.getGeometryType() + "] not supported");
             }
@@ -124,6 +126,12 @@ public class GeoJSONShapeSerializer {
         builder.field("type", "Polygon")
                 .startArray("coordinates");
 
+        serializePolygonCoordinates(polygon, builder);
+
+        builder.endArray();
+    }
+
+    private static void serializePolygonCoordinates(Polygon polygon, XContentBuilder builder) throws IOException {
         builder.startArray(); // start outer ring
 
         for (Coordinate coordinate : polygon.getExteriorRing().getCoordinates()) {
@@ -143,7 +151,19 @@ public class GeoJSONShapeSerializer {
 
             builder.endArray();
         }
+    }
 
+    private static void serializeMulitPolygon(MultiPolygon multiPolygon, XContentBuilder builder) throws IOException {
+        builder.field("type", "MultiPolygon")
+                .startArray("coordinates");
+
+        for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
+            builder.startArray();
+
+            serializePolygonCoordinates((Polygon) multiPolygon.getGeometryN(i), builder);
+
+            builder.endArray();
+        }
 
         builder.endArray();
     }

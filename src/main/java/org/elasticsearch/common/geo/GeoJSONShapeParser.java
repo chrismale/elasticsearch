@@ -138,6 +138,12 @@ public class GeoJSONShapeParser {
         throw new UnsupportedOperationException("ShapeType [" + shapeType + "] not supported");
     }
 
+    /**
+     * Builds a {@link Polygon} from the given CoordinateNode
+     *
+     * @param node CoordinateNode that the Polygon will be built from
+     * @return Polygon consisting of the coordinates in the CoordinateNode
+     */
     private static Polygon buildPolygon(CoordinateNode node) {
         LinearRing shell = GEOMETRY_FACTORY.createLinearRing(toCoordinates(node.children.get(0)));
         LinearRing[] holes = null;

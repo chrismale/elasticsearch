@@ -26,6 +26,8 @@ import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.ElasticSearchIllegalStateException;
 import org.elasticsearch.common.Nullable;
 import org.elasticsearch.common.component.AbstractLifecycleComponent;
+import org.elasticsearch.common.geo.ShapeModule;
+import org.elasticsearch.common.geo.ShapeService;
 import org.elasticsearch.common.inject.*;
 import org.elasticsearch.common.io.FileSystemUtils;
 import org.elasticsearch.common.settings.Settings;
@@ -274,6 +276,7 @@ public class InternalIndicesService extends AbstractLifecycleComponent<IndicesSe
         modules.add(new IndexEngineModule(indexSettings));
         modules.add(new AnalysisModule(indexSettings, indicesAnalysisService));
         modules.add(new SimilarityModule(indexSettings));
+        modules.add(new ShapeModule());
         modules.add(new IndexCacheModule(indexSettings));
         modules.add(new IndexQueryParserModule(indexSettings));
         modules.add(new MapperServiceModule());

@@ -21,6 +21,7 @@ package org.elasticsearch.benchmark.percolator;
 
 import org.elasticsearch.common.StopWatch;
 import org.elasticsearch.common.bytes.BytesArray;
+import org.elasticsearch.common.geo.ShapeModule;
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.inject.Injector;
 import org.elasticsearch.common.inject.ModulesBuilder;
@@ -72,6 +73,7 @@ public class EmbeddedPercolatorBenchmarkTest {
                 new AnalysisModule(settings),
                 new IndexEngineModule(settings),
                 new SimilarityModule(settings),
+                new ShapeModule(),
                 new IndexQueryParserModule(settings),
                 new IndexNameModule(index),
                 new AbstractModule() {

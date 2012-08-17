@@ -25,6 +25,7 @@ import org.apache.lucene.search.spans.*;
 import org.apache.lucene.util.NumericUtils;
 import org.elasticsearch.cluster.ClusterService;
 import org.elasticsearch.common.bytes.BytesArray;
+import org.elasticsearch.common.geo.ShapeModule;
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.inject.Injector;
 import org.elasticsearch.common.inject.ModulesBuilder;
@@ -97,6 +98,7 @@ public class SimpleIndexQueryParserTests {
                 new AnalysisModule(settings),
                 new IndexEngineModule(settings),
                 new SimilarityModule(settings),
+                new ShapeModule(),
                 new IndexQueryParserModule(settings),
                 new IndexNameModule(index),
                 new AbstractModule() {

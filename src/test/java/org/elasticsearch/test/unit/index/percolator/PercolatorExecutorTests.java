@@ -21,6 +21,7 @@ package org.elasticsearch.test.unit.index.percolator;
 
 import org.elasticsearch.cluster.ClusterService;
 import org.elasticsearch.common.bytes.BytesReference;
+import org.elasticsearch.common.geo.ShapeModule;
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.inject.Injector;
 import org.elasticsearch.common.inject.ModulesBuilder;
@@ -81,6 +82,7 @@ public class PercolatorExecutorTests {
                 new AnalysisModule(settings),
                 new IndexEngineModule(settings),
                 new SimilarityModule(settings),
+                new ShapeModule(),
                 new IndexQueryParserModule(settings),
                 new IndexNameModule(index),
                 new AbstractModule() {

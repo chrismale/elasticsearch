@@ -5,14 +5,20 @@ import org.elasticsearch.common.geo.ShapeBuilder;
 import org.elasticsearch.common.geo.WKTShapeParser;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
+import java.text.ParseException;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
+/**
+ * Tests for {@link WKTShapeParser}
+ */
 public class WKTShapeParserTests {
 
+    private static final WKTShapeParser SHAPE_PARSER = new WKTShapeParser();
+
     @Test
-    public void testParsePoint() throws IOException {
+    public void testParsePoint() throws ParseException {
         assertParses("POINT (100 90)", ShapeBuilder.newPoint(100, 90));
         assertParses("POINT ( 100 90 )", ShapeBuilder.newPoint(100, 90));
         assertParses("POINT(100 90)", ShapeBuilder.newPoint(100, 90));
@@ -21,7 +27,34 @@ public class WKTShapeParserTests {
     }
 
     @Test
-    public void testParsePolygon() throws IOException {
+    public void testParsePoint_invalidDefinitions() {
+        try {
+            SHAPE_PARSER.parse("POINT (100 90");
+            fail("ParseException expected");
+        } catch (ParseException e) {
+        }
+
+        try {
+            SHAPE_PARSER.parse("POINT 100 90)");
+            fail("ParseException expected");
+        } catch (ParseException e) {
+        }
+
+        try {
+            SHAPE_PARSER.parse("POINT (100)");
+            fail("ParseException expected");
+        } catch (ParseException e) {
+        }
+
+        try {
+            SHAPE_PARSER.parse("POINT (10f0 90)");
+            fail("ParseException expected");
+        } catch (ParseException e) {
+        }
+    }
+
+    @Test
+    public void testParsePolygon() throws ParseException {
         Shape polygonNoHoles = ShapeBuilder.newPolygon()
                 .point(100, 0)
                 .point(101, 0)
@@ -49,8 +82,7 @@ public class WKTShapeParserTests {
         assertParses("POLYGON ((100 0, 101 0, 101 1, 100 1, 100 0), (100.2 0.2, 100.8 0.2, 100.8 0.8, 100.2 0.8, 100.2 0.2))", polygonWithHoles);
     }
 
-    private void assertParses(String wkt, Shape expected) throws IOException {
-        WKTShapeParser parser = new WKTShapeParser(wkt);
-        assertEquals(parser.parse(), expected);
+    private void assertParses(String wkt, Shape expected) throws ParseException {
+        assertEquals(SHAPE_PARSER.parse(wkt), expected);
     }
 }

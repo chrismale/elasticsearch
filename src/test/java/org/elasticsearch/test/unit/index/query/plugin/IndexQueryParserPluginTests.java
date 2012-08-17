@@ -20,6 +20,7 @@
 package org.elasticsearch.test.unit.index.query.plugin;
 
 import org.elasticsearch.cluster.ClusterService;
+import org.elasticsearch.common.geo.ShapeModule;
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.inject.Injector;
 import org.elasticsearch.common.inject.ModulesBuilder;
@@ -78,6 +79,7 @@ public class IndexQueryParserPluginTests {
                 new AnalysisModule(settings),
                 new IndexEngineModule(settings),
                 new SimilarityModule(settings),
+                new ShapeModule(),
                 queryParserModule,
                 new IndexNameModule(index),
                 new AbstractModule() {

@@ -25,6 +25,7 @@ import org.apache.lucene.search.Query;
 import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.common.Nullable;
 import org.elasticsearch.common.bytes.BytesReference;
+import org.elasticsearch.common.geo.ShapeService;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.lucene.search.Queries;
 import org.elasticsearch.common.settings.Settings;
@@ -79,6 +80,8 @@ public class IndexQueryParserService extends AbstractIndexComponent {
 
     final IndexEngine indexEngine;
 
+    final ShapeService shapeService;
+
     private final Map<String, QueryParser> queryParsers;
 
     private final Map<String, FilterParser> filterParsers;
@@ -90,7 +93,8 @@ public class IndexQueryParserService extends AbstractIndexComponent {
     public IndexQueryParserService(Index index, @IndexSettings Settings indexSettings,
                                    IndicesQueriesRegistry indicesQueriesRegistry,
                                    ScriptService scriptService, AnalysisService analysisService,
-                                   MapperService mapperService, IndexCache indexCache, IndexEngine indexEngine,
+                                   MapperService mapperService, ShapeService shapeService,
+                                   IndexCache indexCache, IndexEngine indexEngine,
                                    @Nullable SimilarityService similarityService,
                                    @Nullable Map<String, QueryParserFactory> namedQueryParsers,
                                    @Nullable Map<String, FilterParserFactory> namedFilterParsers) {
@@ -99,6 +103,7 @@ public class IndexQueryParserService extends AbstractIndexComponent {
         this.analysisService = analysisService;
         this.mapperService = mapperService;
         this.similarityService = similarityService;
+        this.shapeService = shapeService;
         this.indexCache = indexCache;
         this.indexEngine = indexEngine;
 

@@ -146,10 +146,21 @@ public class ShapeBuilder {
             return this;
         }
 
-        public LinearRingBuilder newHole() {
-            return new LinearRingBuilder(this);
+        /**
+         * Starts a new hole in the Polygon
+         *
+         * @return PolygonHoleBuilder to create the new hole
+         */
+        public PolygonHoleBuilder newHole() {
+            return new PolygonHoleBuilder(this);
         }
 
+        /**
+         * Registers the LinearRing representing a hole
+         *
+         * @param linearRing Hole to register
+         * @return this
+         */
         private PolygonBuilder addHole(LinearRing linearRing) {
             holes.add(linearRing);
             return this;
@@ -176,28 +187,41 @@ public class ShapeBuilder {
         }
     }
 
-    public static class LinearRingBuilder {
+    /**
+     * Builder for defining a hole in a {@link Polygon}
+     */
+    public static class PolygonHoleBuilder {
 
         private final List<Coordinate> points = new ArrayList<Coordinate>();
-
         private final PolygonBuilder polygonBuilder;
 
-        private LinearRingBuilder(PolygonBuilder polygonBuilder) {
+        /**
+         * Creates a new PolygonHoleBuilder
+         *
+         * @param polygonBuilder PolygonBuilder that the hole built by this builder
+         *                       will be added to
+         */
+        private PolygonHoleBuilder(PolygonBuilder polygonBuilder) {
             this.polygonBuilder = polygonBuilder;
         }
 
         /**
-         * Adds a point to the Polygon
+         * Adds a point to the LinearRing
          *
          * @param lon Longitude of the point
          * @param lat Latitude of the point
          * @return this
          */
-        public LinearRingBuilder point(double lon, double lat) {
+        public PolygonHoleBuilder point(double lon, double lat) {
             points.add(new Coordinate(lon, lat));
             return this;
         }
 
+        /**
+         * Ends the building of the hole
+         *
+         * @return PolygonBuilder to use to build the remainder of the Polygon.
+         */
         public PolygonBuilder endHole() {
             return polygonBuilder.addHole(GEOMETRY_FACTORY.createLinearRing(points.toArray(new Coordinate[points.size()])));
         }

@@ -45,7 +45,13 @@ public class GeoShapeQueryParser implements QueryParser {
 
                         token = parser.nextToken();
                         if ("shape".equals(currentFieldName)) {
-                            shape = GeoJSONShapeParser.parse(parser);
+                            if (token == XContentParser.Token.START_OBJECT) {
+                                shape = GeoJSONShapeParser.parse(parser);
+                            } else if (token == XContentParser.Token.VALUE_STRING) {
+                                shape = parseContext.shapeService().shape(parser.text());
+                            } else {
+                                throw new QueryParsingException(parseContext.index(), "Unsupported shape definition");
+                            }
                         } else if ("relation".equals(currentFieldName)) {
                             shapeRelation = ShapeRelation.getRelationByName(parser.text());
                             if (shapeRelation == null) {

@@ -21,6 +21,7 @@ package org.elasticsearch.test.unit.index.aliases;
 
 import org.elasticsearch.cluster.ClusterService;
 import org.elasticsearch.common.compress.CompressedString;
+import org.elasticsearch.common.geo.ShapeModule;
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.inject.Injector;
 import org.elasticsearch.common.inject.ModulesBuilder;
@@ -68,6 +69,7 @@ public class IndexAliasesServiceTests {
                 new AnalysisModule(ImmutableSettings.Builder.EMPTY_SETTINGS),
                 new SimilarityModule(ImmutableSettings.Builder.EMPTY_SETTINGS),
                 new ScriptModule(ImmutableSettings.Builder.EMPTY_SETTINGS),
+                new ShapeModule(),
                 new SettingsModule(ImmutableSettings.Builder.EMPTY_SETTINGS),
                 new IndexEngineModule(ImmutableSettings.Builder.EMPTY_SETTINGS),
                 new IndexCacheModule(ImmutableSettings.Builder.EMPTY_SETTINGS),

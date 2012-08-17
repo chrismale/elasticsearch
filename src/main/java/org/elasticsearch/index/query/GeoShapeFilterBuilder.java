@@ -13,10 +13,10 @@ import java.io.IOException;
 public class GeoShapeFilterBuilder extends BaseFilterBuilder {
 
     private final String name;
+    private final Shape shape;
+    private final String shapeName;
 
     private ShapeRelation relation = ShapeRelation.INTERSECTS;
-
-    private final Shape shape;
 
     private Boolean cache;
     private String cacheKey;
@@ -25,7 +25,7 @@ public class GeoShapeFilterBuilder extends BaseFilterBuilder {
 
     /**
      * Creates a new GeoShapeFilterBuilder whose Filter will be against the
-     * given field name
+     * given field name and will use the given Shape to Filter
      *
      * @param name Name of the field that will be filtered
      * @param shape Shape used in the filter
@@ -33,6 +33,20 @@ public class GeoShapeFilterBuilder extends BaseFilterBuilder {
     public GeoShapeFilterBuilder(String name, Shape shape) {
         this.name = name;
         this.shape = shape;
+        this.shapeName = null;
+    }
+
+    /**
+     * Creates a new GeoShapeFilterBuilder whose Filter will be against the
+     * given field name and use a stored Shape with the given name in the Filter
+     *
+     * @param name Name of the field that will be filtered
+     * @param shapeName Name of a stored Shape that will be used in the filter
+     */
+    public GeoShapeFilterBuilder(String name, String shapeName) {
+        this.name = name;
+        this.shape = null;
+        this.shapeName = shapeName;
     }
 
     /**
@@ -87,9 +101,13 @@ public class GeoShapeFilterBuilder extends BaseFilterBuilder {
         builder.startObject(name);
         builder.field("relation", relation.getRelationName());
 
-        builder.startObject("shape");
-        GeoJSONShapeSerializer.serialize(shape, builder);
-        builder.endObject();
+        if (shape != null) {
+            builder.startObject("shape");
+            GeoJSONShapeSerializer.serialize(shape, builder);
+            builder.endObject();
+        } else {
+            builder.field("shape", shapeName);
+        }
 
         builder.endObject();
 

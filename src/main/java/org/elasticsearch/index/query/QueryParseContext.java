@@ -27,6 +27,7 @@ import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Similarity;
 import org.elasticsearch.common.Nullable;
+import org.elasticsearch.common.geo.ShapeService;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.index.Index;
 import org.elasticsearch.index.analysis.AnalysisService;
@@ -123,6 +124,10 @@ public class QueryParseContext {
 
     public Similarity searchSimilarity() {
         return indexQueryParser.similarityService != null ? indexQueryParser.similarityService.defaultSearchSimilarity() : null;
+    }
+
+    public ShapeService shapeService() {
+        return indexQueryParser.shapeService;
     }
 
     public IndexCache indexCache() {

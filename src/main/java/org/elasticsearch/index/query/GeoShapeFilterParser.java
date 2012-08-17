@@ -67,7 +67,15 @@ public class GeoShapeFilterParser implements FilterParser {
 
                         token = parser.nextToken();
                         if ("shape".equals(currentFieldName)) {
-                            shape = GeoJSONShapeParser.parse(parser);
+                            if (token == XContentParser.Token.START_OBJECT) {
+                                shape = GeoJSONShapeParser.parse(parser);
+                            } else if (token == XContentParser.Token.VALUE_STRING) {
+                                shape = parseContext.shapeService().shape(parser.text());
+                                // TODO - Do we check that the Shape is null here and provide a better
+                                // error message about the Shape not being found in the Service?
+                            } else {
+                                throw new QueryParsingException(parseContext.index(), "Unsupported shape definition");
+                            }
                         } else if ("relation".equals(currentFieldName)) {
                             shapeRelation = ShapeRelation.getRelationByName(parser.text());
                             if (shapeRelation == null) {

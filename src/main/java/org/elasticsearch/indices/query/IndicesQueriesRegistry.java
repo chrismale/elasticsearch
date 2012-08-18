@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.elasticsearch.cluster.ClusterService;
 import org.elasticsearch.common.Nullable;
+import org.elasticsearch.common.geo.ShapeService;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.query.*;
@@ -38,7 +39,7 @@ public class IndicesQueriesRegistry {
     private ImmutableMap<String, FilterParser> filterParsers;
 
     @Inject
-    public IndicesQueriesRegistry(Settings settings, @Nullable ClusterService clusterService) {
+    public IndicesQueriesRegistry(Settings settings, @Nullable ClusterService clusterService, ShapeService shapeService) {
         Map<String, QueryParser> queryParsers = Maps.newHashMap();
         addQueryParser(queryParsers, new MatchQueryParser());
         addQueryParser(queryParsers, new MultiMatchQueryParser());
@@ -74,7 +75,7 @@ public class IndicesQueriesRegistry {
         addQueryParser(queryParsers, new FuzzyLikeThisFieldQueryParser());
         addQueryParser(queryParsers, new WrapperQueryParser());
         addQueryParser(queryParsers, new IndicesQueryParser(clusterService));
-        addQueryParser(queryParsers, new GeoShapeQueryParser());
+        addQueryParser(queryParsers, new GeoShapeQueryParser(shapeService));
         this.queryParsers = ImmutableMap.copyOf(queryParsers);
 
         Map<String, FilterParser> filterParsers = Maps.newHashMap();
@@ -93,7 +94,7 @@ public class IndicesQueriesRegistry {
         addFilterParser(filterParsers, new GeoDistanceRangeFilterParser());
         addFilterParser(filterParsers, new GeoBoundingBoxFilterParser());
         addFilterParser(filterParsers, new GeoPolygonFilterParser());
-        addFilterParser(filterParsers, new GeoShapeFilterParser());
+        addFilterParser(filterParsers, new GeoShapeFilterParser(shapeService));
         addFilterParser(filterParsers, new QueryFilterParser());
         addFilterParser(filterParsers, new FQueryFilterParser());
         addFilterParser(filterParsers, new BoolFilterParser());

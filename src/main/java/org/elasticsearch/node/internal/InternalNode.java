@@ -36,6 +36,7 @@ import org.elasticsearch.common.collect.Tuple;
 import org.elasticsearch.common.component.Lifecycle;
 import org.elasticsearch.common.component.LifecycleComponent;
 import org.elasticsearch.common.compress.CompressorFactory;
+import org.elasticsearch.common.geo.ShapeModule;
 import org.elasticsearch.common.inject.Injector;
 import org.elasticsearch.common.inject.Injectors;
 import org.elasticsearch.common.inject.ModulesBuilder;
@@ -129,6 +130,7 @@ public final class InternalNode implements Node {
         modules.add(new NetworkModule());
         modules.add(new NodeCacheModule(settings));
         modules.add(new ScriptModule(settings));
+        modules.add(new ShapeModule(settings));
         modules.add(new JmxModule(settings));
         modules.add(new EnvironmentModule(environment));
         modules.add(new NodeEnvironmentModule(nodeEnvironment));

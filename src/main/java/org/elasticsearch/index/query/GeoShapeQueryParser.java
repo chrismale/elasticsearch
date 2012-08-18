@@ -5,6 +5,8 @@ import org.apache.lucene.search.Query;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoJSONShapeParser;
 import org.elasticsearch.common.geo.ShapeRelation;
+import org.elasticsearch.common.geo.ShapeService;
+import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.index.mapper.FieldMapper;
 import org.elasticsearch.index.mapper.MapperService;
@@ -15,6 +17,13 @@ import java.io.IOException;
 public class GeoShapeQueryParser implements QueryParser {
 
     public static final String NAME = "geo_shape";
+
+    private final ShapeService shapeService;
+
+    @Inject
+    public GeoShapeQueryParser(ShapeService shapeService) {
+        this.shapeService = shapeService;
+    }
 
     @Override
     public String[] names() {
@@ -48,7 +57,7 @@ public class GeoShapeQueryParser implements QueryParser {
                             if (token == XContentParser.Token.START_OBJECT) {
                                 shape = GeoJSONShapeParser.parse(parser);
                             } else if (token == XContentParser.Token.VALUE_STRING) {
-                                shape = parseContext.shapeService().shape(parser.text());
+                                shape = shapeService.shape(parser.text());
                             } else {
                                 throw new QueryParsingException(parseContext.index(), "Unsupported shape definition");
                             }

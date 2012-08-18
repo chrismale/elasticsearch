@@ -79,7 +79,7 @@ public class IndexQueryParserPluginTests {
                 new AnalysisModule(settings),
                 new IndexEngineModule(settings),
                 new SimilarityModule(settings),
-                new ShapeModule(),
+                new ShapeModule(settings),
                 queryParserModule,
                 new IndexNameModule(index),
                 new AbstractModule() {

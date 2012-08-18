@@ -73,7 +73,7 @@ public class EmbeddedPercolatorBenchmarkTest {
                 new AnalysisModule(settings),
                 new IndexEngineModule(settings),
                 new SimilarityModule(settings),
-                new ShapeModule(),
+                new ShapeModule(settings),
                 new IndexQueryParserModule(settings),
                 new IndexNameModule(index),
                 new AbstractModule() {

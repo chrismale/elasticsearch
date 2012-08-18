@@ -16,7 +16,7 @@ public class LocalShapeServiceTests {
         Settings settings = ImmutableSettings.settingsBuilder().build();
         Injector injector = new ModulesBuilder().add(
                 new SettingsModule(settings),
-                new ShapeModule()).createInjector();
+                new ShapeModule(settings)).createInjector();
 
         ShapeService shapeService = injector.getInstance(ShapeService.class);
     }

@@ -4,6 +4,8 @@ import com.spatial4j.core.shape.Shape;
 import org.apache.lucene.search.Filter;
 import org.elasticsearch.common.geo.ShapeRelation;
 import org.elasticsearch.common.geo.GeoJSONShapeParser;
+import org.elasticsearch.common.geo.ShapeService;
+import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.index.cache.filter.support.CacheKeyFilter;
 import org.elasticsearch.index.mapper.FieldMapper;
@@ -35,6 +37,13 @@ import static org.elasticsearch.index.query.support.QueryParsers.wrapSmartNameFi
 public class GeoShapeFilterParser implements FilterParser {
 
     public static final String NAME = "geo_shape";
+
+    private final ShapeService shapeService;
+
+    @Inject
+    public GeoShapeFilterParser(ShapeService shapeService) {
+        this.shapeService = shapeService;
+    }
 
     @Override
     public String[] names() {
@@ -70,7 +79,7 @@ public class GeoShapeFilterParser implements FilterParser {
                             if (token == XContentParser.Token.START_OBJECT) {
                                 shape = GeoJSONShapeParser.parse(parser);
                             } else if (token == XContentParser.Token.VALUE_STRING) {
-                                shape = parseContext.shapeService().shape(parser.text());
+                                shape = shapeService.shape(parser.text());
                                 // TODO - Do we check that the Shape is null here and provide a better
                                 // error message about the Shape not being found in the Service?
                             } else {

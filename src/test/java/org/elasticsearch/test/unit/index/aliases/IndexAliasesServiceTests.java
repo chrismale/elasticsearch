@@ -69,7 +69,6 @@ public class IndexAliasesServiceTests {
                 new AnalysisModule(ImmutableSettings.Builder.EMPTY_SETTINGS),
                 new SimilarityModule(ImmutableSettings.Builder.EMPTY_SETTINGS),
                 new ScriptModule(ImmutableSettings.Builder.EMPTY_SETTINGS),
-                new ShapeModule(),
                 new SettingsModule(ImmutableSettings.Builder.EMPTY_SETTINGS),
                 new IndexEngineModule(ImmutableSettings.Builder.EMPTY_SETTINGS),
                 new IndexCacheModule(ImmutableSettings.Builder.EMPTY_SETTINGS),

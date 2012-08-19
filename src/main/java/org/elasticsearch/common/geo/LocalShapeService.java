@@ -73,9 +73,13 @@ public class LocalShapeService extends AbstractComponent implements ShapeService
                 @Override
                 public boolean processLine(String line) throws IOException {
                     try {
-                        int space = line.indexOf(' ');
-                        String name = line.substring(0, space);
-                        Shape shape = shapeParser.parse(line.substring(space + 1));
+                        int delimiter = line.indexOf(':');
+                        if (delimiter == -1) {
+                            logger.error("Delimiter ':' missing from line [{}]", line);
+                            return false;
+                        }
+                        String name = line.substring(0, delimiter);
+                        Shape shape = shapeParser.parse(line.substring(delimiter + 1));
                         shapesByName.put(name, shape);
                         return true;
                     } catch (ParseException pe) {

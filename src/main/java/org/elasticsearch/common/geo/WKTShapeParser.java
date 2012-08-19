@@ -33,7 +33,7 @@ public class WKTShapeParser {
      * @throws ParseException Thrown if there is an error in the Shape definition
      */
     public Shape parse(String wktString) throws ParseException {
-        this.rawString = wktString.toLowerCase(Locale.ENGLISH);
+        this.rawString = wktString.toLowerCase(Locale.ENGLISH).trim();
         if (rawString.startsWith("point")) {
             offset = 5;
             return parsePoint();
@@ -48,7 +48,7 @@ public class WKTShapeParser {
             return parseEnvelope();
         }
 
-        throw new ParseException("Unknown Shape type defined in [" + rawString + "]", offset);
+        throw new ParseException("Unknown Shape definition [" + rawString + "]", offset);
     }
 
     /**

@@ -22,7 +22,7 @@ import static org.testng.Assert.assertNotEquals;
 public class LocalShapeServiceTests {
 
     @Test
-    public void testLocalShapeService() {
+    public void testLocalShapeService_customWKTShapeFileReader() {
         String mockConfigPath = getClass().getResource("/org/elasticsearch/test/unit/common/geo").getPath();
         Settings settings = ImmutableSettings.settingsBuilder().put("path.home", mockConfigPath).build();
         Environment environment = new Environment(settings);

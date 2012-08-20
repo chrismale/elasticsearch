@@ -12,6 +12,7 @@ import org.elasticsearch.env.Environment;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.text.ParseException;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -24,10 +25,13 @@ import java.util.concurrent.ConcurrentMap;
 public class LocalShapeService extends AbstractComponent implements ShapeService {
 
     private final ConcurrentMap<String, Shape> shapesByName = ConcurrentCollections.newConcurrentMap();
+    private final ShapeFileReader shapeFileReader;
 
     @Inject
     public LocalShapeService(Settings settings, Environment environment) {
         super(settings);
+        // TODO: make configurable
+        this.shapeFileReader = new CustomWKTShapeFileReader(settings);
 
         File shapeFiles = new File(environment.configFile(), "shapes");
         if (shapeFiles.exists()) {
@@ -62,36 +66,8 @@ public class LocalShapeService extends AbstractComponent implements ShapeService
                 readShapes(file);
             }
 
-            final WKTShapeParser shapeParser = new WKTShapeParser();
-
-            LineProcessor<Void> lineProcessor = new LineProcessor<Void>() {
-
-                @Override
-                public boolean processLine(String line) throws IOException {
-                    try {
-                        int delimiter = line.indexOf(':');
-                        if (delimiter == -1) {
-                            logger.error("Delimiter ':' missing from line [{}]", line);
-                            return false;
-                        }
-                        String name = line.substring(0, delimiter);
-                        Shape shape = shapeParser.parse(line.substring(delimiter + 1));
-                        shapesByName.put(name, shape);
-                        return true;
-                    } catch (ParseException pe) {
-                        logger.error("ParseException thrown while parsing Shape definition", pe);
-                        return false;
-                    }
-                }
-
-                @Override
-                public Void getResult() {
-                    return null;
-                }
-            };
-
             try {
-                Files.readLines(file, Charset.forName("UTF-8"), lineProcessor);
+                shapesByName.putAll(shapeFileReader.readFile(file));
             } catch (IOException ioe) {
                 logger.error("IOException thrown while reading file [{}]", ioe, file.getName());
                 break;

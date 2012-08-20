@@ -12,11 +12,8 @@ public interface ShapeService {
      *
      * @param name Name of the Shape
      * @param shape Shape to store
-     * @param override {@code true} if an existing Shape with the same name already
-     *                 exists in the Service then it will be overridden.  {@code false}
-     *                 for any existing Shape to not be overridden.
      */
-    void add(String name, Shape shape, boolean override);
+    void add(String name, Shape shape);
 
     /**
      * Retrieves the Shape with the given name

@@ -1,0 +1,22 @@
+{
+    "filtered" : {
+        "query" : {
+            "match_all" : {}
+        },
+        "filter" : {
+            "geo_shape" : {
+                "country" : {
+                    "shape" : {
+                        "type" : "Envelope",
+                        "coordinates" : [
+                            [-45, 45],
+                            [45, -45]
+                        ]
+                    },
+                    "shape_name" : "big_rectangle",
+                    "relation" : "intersects"
+                }
+            }
+        }
+    }
+}

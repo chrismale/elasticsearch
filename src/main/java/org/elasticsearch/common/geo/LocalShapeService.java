@@ -38,12 +38,8 @@ public class LocalShapeService extends AbstractComponent implements ShapeService
     /**
      * {@inheritDoc}
      */
-    public void add(String name, Shape shape, boolean override) {
-        if (override) {
-            shapesByName.put(name, shape);
-        } else {
-            shapesByName.putIfAbsent(name, shape);
-        }
+    public void add(String name, Shape shape) {
+        shapesByName.put(name, shape);
     }
 
     /**

@@ -43,15 +43,7 @@ public class LocalShapeServiceTests {
                 .topLeft(-45, 45)
                 .bottomRight(45, -45)
                 .build();
-        shapeService.add("Big Rectangle", bigRectangle, true);
-        assertEquals(shapeService.shape("Big Rectangle"), bigRectangle);
-
-        Shape smallerRectangle = ShapeBuilder.newRectangle()
-                .topLeft(-30, 30)
-                .bottomRight(30, -30)
-                .build();
-        shapeService.add("Big Rectangle", smallerRectangle, false);
-        assertNotEquals(shapeService.shape("Big Rectangle"), smallerRectangle);
+        shapeService.add("Big Rectangle", bigRectangle);
         assertEquals(shapeService.shape("Big Rectangle"), bigRectangle);
     }
 }

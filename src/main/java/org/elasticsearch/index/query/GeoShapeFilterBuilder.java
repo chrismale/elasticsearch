@@ -1,6 +1,7 @@
 package org.elasticsearch.index.query;
 
 import com.spatial4j.core.shape.Shape;
+import org.elasticsearch.ElasticSearchIllegalArgumentException;
 import org.elasticsearch.common.geo.GeoJSONShapeSerializer;
 import org.elasticsearch.common.geo.ShapeRelation;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -15,6 +16,9 @@ public class GeoShapeFilterBuilder extends BaseFilterBuilder {
     private final String name;
     private final Shape shape;
     private final String shapeName;
+
+    private String registerShapeName;
+    private Boolean overrideExisting;
 
     private ShapeRelation relation = ShapeRelation.INTERSECTS;
 
@@ -47,6 +51,22 @@ public class GeoShapeFilterBuilder extends BaseFilterBuilder {
         this.name = name;
         this.shape = null;
         this.shapeName = shapeName;
+    }
+
+    public GeoShapeFilterBuilder registerShapeAs(String name) {
+        if (shape == null) {
+            throw new ElasticSearchIllegalArgumentException("No Shape has been defined");
+        }
+        this.registerShapeName = name;
+        return this;
+    }
+
+    public GeoShapeFilterBuilder overrideExistingShape(boolean overrideExisting) {
+        if (shape == null) {
+            throw new ElasticSearchIllegalArgumentException("No Shape has been defined");
+        }
+        this.overrideExisting = overrideExisting;
+        return this;
     }
 
     /**
@@ -105,6 +125,13 @@ public class GeoShapeFilterBuilder extends BaseFilterBuilder {
             builder.startObject("shape");
             GeoJSONShapeSerializer.serialize(shape, builder);
             builder.endObject();
+
+            if (registerShapeName != null) {
+                builder.field("shape_name", registerShapeName);
+            }
+            if (overrideExisting != null) {
+                builder.field("override_existing", overrideExisting);
+            }
         } else {
             builder.field("shape", shapeName);
         }

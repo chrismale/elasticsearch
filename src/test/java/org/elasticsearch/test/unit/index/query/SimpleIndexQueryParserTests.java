@@ -1838,6 +1838,26 @@ public class SimpleIndexQueryParserTests {
     }
 
     @Test
+    public void testGeoShapeFilterNamedShapes() throws IOException {
+        IndexQueryParserService queryParser = queryParser();
+        String query = copyToStringFromClasspath("/org/elasticsearch/test/unit/index/query/geoShape-filter-shapenamed.json");
+        Query parsedQuery = queryParser.parse(query).query();
+        assertThat(parsedQuery, instanceOf(DeletionAwareConstantScoreQuery.class));
+        DeletionAwareConstantScoreQuery constantScoreQuery = (DeletionAwareConstantScoreQuery) parsedQuery;
+        XTermsFilter filter = (XTermsFilter) constantScoreQuery.getFilter();
+        Term exampleTerm = filter.getTerms()[0];
+        assertThat(exampleTerm.field(), equalTo("country"));
+
+        query = copyToStringFromClasspath("/org/elasticsearch/test/unit/index/query/geoShape-filter-shaperegistered.json");
+        parsedQuery = queryParser.parse(query).query();
+        assertThat(parsedQuery, instanceOf(DeletionAwareConstantScoreQuery.class));
+        constantScoreQuery = (DeletionAwareConstantScoreQuery) parsedQuery;
+        filter = (XTermsFilter) constantScoreQuery.getFilter();
+        exampleTerm = filter.getTerms()[0];
+        assertThat(exampleTerm.field(), equalTo("country"));
+    }
+
+    @Test
     public void testGeoShapeQuery() throws IOException {
         IndexQueryParserService queryParser = queryParser();
         String query = copyToStringFromClasspath("/org/elasticsearch/test/unit/index/query/geoShape-query.json");

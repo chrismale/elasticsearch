@@ -58,8 +58,6 @@ public class GeoShapeFilterParser implements FilterParser {
         ShapeRelation shapeRelation = null;
         Shape shape = null;
         String shapeName = null;
-        String shapeServiceName = null;
-        boolean overrideExisting = true;
 
         boolean cache = false;
         CacheKeyFilter.Key cacheKey = null;
@@ -92,10 +90,6 @@ public class GeoShapeFilterParser implements FilterParser {
                             if (shapeRelation == null) {
                                 throw new QueryParsingException(parseContext.index(), "Unknown shape operation [" + parser.text() + " ]");
                             }
-                        } else if ("shape_name".equals(currentFieldName)) {
-                            shapeServiceName = parser.text();
-                        } else if ("override_existing".equals(currentFieldName)) {
-                            overrideExisting = parser.booleanValue();
                         }
                     }
                 }
@@ -117,17 +111,6 @@ public class GeoShapeFilterParser implements FilterParser {
             }
         } else if (shape == null) {
             throw new QueryParsingException(parseContext.index(), "No Shape defined");
-        } else if (shapeServiceName != null) {
-            if (overrideExisting) {
-                shapeService.add(shapeServiceName, shape);
-            } else {
-                Shape existingShape = shapeService.shape(shapeServiceName);
-                if (existingShape == null) {
-                    shapeService.add(shapeServiceName, shape);
-                } else {
-                    throw new QueryParsingException(parseContext.index(), "Shape with name [" + shapeServiceName + "] already registered");
-                }
-            }
         }
 
         if (shapeRelation == null) {

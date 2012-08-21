@@ -38,8 +38,6 @@ public class GeoShapeQueryParser implements QueryParser {
         ShapeRelation shapeRelation = null;
         Shape shape = null;
         String shapeName = null;
-        String shapeServiceName = null;
-        boolean overrideExisting = true;
 
         XContentParser.Token token;
         String currentFieldName = null;
@@ -69,10 +67,6 @@ public class GeoShapeQueryParser implements QueryParser {
                             if (shapeRelation == null) {
                                 throw new QueryParsingException(parseContext.index(), "Unknown shape operation [" + parser.text() + " ]");
                             }
-                        } else if ("shape_name".equals(currentFieldName)) {
-                            shapeServiceName = parser.text();
-                        } else if ("override_existing".equals(currentFieldName)) {
-                            overrideExisting = parser.booleanValue();
                         }
                     }
                 }
@@ -90,17 +84,6 @@ public class GeoShapeQueryParser implements QueryParser {
             }
         } else if (shape == null) {
             throw new QueryParsingException(parseContext.index(), "No Shape defined");
-        } else if (shapeServiceName != null) {
-            if (overrideExisting) {
-                shapeService.add(shapeServiceName, shape);
-            } else {
-                Shape existingShape = shapeService.shape(shapeServiceName);
-                if (existingShape == null) {
-                    shapeService.add(shapeServiceName, shape);
-                } else {
-                    throw new QueryParsingException(parseContext.index(), "Shape with name [" + shapeServiceName + "] already registered");
-                }
-            }
         }
 
         if (shapeRelation == null) {

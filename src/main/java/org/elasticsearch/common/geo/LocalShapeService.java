@@ -1,19 +1,15 @@
 package org.elasticsearch.common.geo;
 
-import com.google.common.io.Files;
-import com.google.common.io.LineProcessor;
 import com.spatial4j.core.shape.Shape;
 import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.util.concurrent.ConcurrentCollections;
 import org.elasticsearch.env.Environment;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.text.ParseException;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Implementation of {@link ShapeService} which pre-loads Shapes from the local
@@ -24,7 +20,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class LocalShapeService extends AbstractComponent implements ShapeService {
 
-    private final ConcurrentMap<String, Shape> shapesByName = ConcurrentCollections.newConcurrentMap();
+    private final Map<String, Shape> shapesByName = new HashMap<String, Shape>();
     private final ShapeFileReader shapeFileReader;
 
     @Inject
@@ -37,13 +33,6 @@ public class LocalShapeService extends AbstractComponent implements ShapeService
         if (shapeFiles.exists()) {
             readShapes(shapeFiles);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void add(String name, Shape shape) {
-        shapesByName.put(name, shape);
     }
 
     /**

@@ -1,7 +1,6 @@
 package org.elasticsearch.common.geo;
 
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.simple.PointImpl;
 import com.spatial4j.core.shape.simple.RectangleImpl;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -36,7 +35,7 @@ public class WKTShapeParser {
             return parsePoint();
         } else if (rawString.startsWith("polygon")) {
             offset = 7;
-            return new JtsGeometry(polygon());
+            return new JtsGeometry(polygon(), GeoShapeConstants.SPATIAL_CONTEXT);
         } else if (rawString.startsWith("multipolygon")) {
             offset = 12;
             return parseMulitPolygon();
@@ -106,7 +105,9 @@ public class WKTShapeParser {
         }
 
         expect(')');
-        return new JtsGeometry(GeoShapeConstants.GEOMETRY_FACTORY.createMultiPolygon(polygons.toArray(new Polygon[polygons.size()])));
+        return new JtsGeometry(
+                GeoShapeConstants.GEOMETRY_FACTORY.createMultiPolygon(polygons.toArray(new Polygon[polygons.size()])),
+                GeoShapeConstants.SPATIAL_CONTEXT);
     }
 
     /**

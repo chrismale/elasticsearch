@@ -1,7 +1,6 @@
 package org.elasticsearch.common.geo;
 
 import com.spatial4j.core.shape.*;
-import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.Point;
 import org.elasticsearch.ElasticSearchIllegalArgumentException;
@@ -31,7 +30,7 @@ public class GeoJSONShapeSerializer {
      */
     public static void serialize(Shape shape, XContentBuilder builder) throws IOException {
         if (shape instanceof JtsGeometry) {
-            Geometry geometry = ((JtsGeometry) shape).geo;
+            Geometry geometry = ((JtsGeometry) shape).getGeom();
             if (geometry instanceof Point) {
                 serializePoint((Point) geometry, builder);
             } else if (geometry instanceof LineString) {

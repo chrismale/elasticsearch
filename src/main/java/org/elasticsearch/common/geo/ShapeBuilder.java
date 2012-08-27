@@ -3,7 +3,6 @@ package org.elasticsearch.common.geo;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
 import com.spatial4j.core.shape.simple.PointImpl;
 import com.spatial4j.core.shape.simple.RectangleImpl;
@@ -59,7 +58,7 @@ public class ShapeBuilder {
      */
     public static Geometry toJTSGeometry(Shape shape) {
         if (shape instanceof JtsGeometry) {
-            return ((JtsGeometry) shape).geo;
+            return ((JtsGeometry) shape).getGeom();
         } else if (shape instanceof JtsPoint) {
             return ((JtsPoint) shape).getJtsPoint();
         } else if (shape instanceof Rectangle) {
@@ -170,7 +169,7 @@ public class ShapeBuilder {
          * @return Built polygon
          */
         public Shape build() {
-            return new JtsGeometry(toPolygon());
+            return new JtsGeometry(toPolygon(), GeoShapeConstants.SPATIAL_CONTEXT);
         }
 
         /**

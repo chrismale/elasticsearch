@@ -18,6 +18,7 @@ import com.vividsolutions.jts.operation.valid.IsValidOp;
 import java.util.ArrayList;
 import java.util.List;
 
+// PORT FROM UNRELEASED SPATIAL4J 3.0.  MOVE TO RELEASED VERSION WHEN AVAILABLE
 public class JtsGeometry implements Shape {
     private final Geometry geom;//cannot be a direct instance of GeometryCollection as it doesn't support relate()
     private final boolean hasArea;

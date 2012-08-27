@@ -4,7 +4,6 @@ import com.google.common.io.Closeables;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFReader;
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LinearRing;
 import org.elasticsearch.ElasticSearchIllegalArgumentException;
@@ -290,7 +289,7 @@ public class ESRIShapeFileReader implements ShapeFileReader {
             }
         }
 
-        return new JtsGeometry(GeoShapeConstants.GEOMETRY_FACTORY.createPolygon(shell, holes));
+        return new JtsGeometry(GeoShapeConstants.GEOMETRY_FACTORY.createPolygon(shell, holes), GeoShapeConstants.SPATIAL_CONTEXT);
     }
 
     /**

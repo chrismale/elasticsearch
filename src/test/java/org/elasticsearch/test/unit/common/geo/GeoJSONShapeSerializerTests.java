@@ -1,10 +1,11 @@
 package org.elasticsearch.test.unit.common.geo;
 
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.jts.JtsPoint;
 import com.vividsolutions.jts.geom.*;
 import org.elasticsearch.common.geo.GeoJSONShapeSerializer;
+import org.elasticsearch.common.geo.GeoShapeConstants;
+import org.elasticsearch.common.geo.JtsGeometry;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.testng.annotations.Test;
@@ -48,7 +49,7 @@ public class GeoJSONShapeSerializerTests {
         LineString lineString = GEOMETRY_FACTORY.createLineString(
                 lineCoordinates.toArray(new Coordinate[lineCoordinates.size()]));
 
-        assertSerializationEquals(expected, new JtsGeometry(lineString));
+        assertSerializationEquals(expected, new JtsGeometry(lineString, GeoShapeConstants.SPATIAL_CONTEXT));
     }
 
     @Test
@@ -76,7 +77,7 @@ public class GeoJSONShapeSerializerTests {
                 shellCoordinates.toArray(new Coordinate[shellCoordinates.size()]));
         Polygon polygon = GEOMETRY_FACTORY.createPolygon(shell, null);
 
-        assertSerializationEquals(expected, new JtsGeometry(polygon));
+        assertSerializationEquals(expected, new JtsGeometry(polygon, GeoShapeConstants.SPATIAL_CONTEXT));
     }
 
     @Test
@@ -121,7 +122,7 @@ public class GeoJSONShapeSerializerTests {
                 holeCoordinates.toArray(new Coordinate[holeCoordinates.size()]));
         Polygon polygon = GEOMETRY_FACTORY.createPolygon(shell, holes);
 
-        assertSerializationEquals(expected, new JtsGeometry(polygon));
+        assertSerializationEquals(expected, new JtsGeometry(polygon, GeoShapeConstants.SPATIAL_CONTEXT));
     }
 
     @Test
@@ -140,22 +141,13 @@ public class GeoJSONShapeSerializerTests {
         MultiPoint multiPoint = GEOMETRY_FACTORY.createMultiPoint(
                 multiPointCoordinates.toArray(new Coordinate[multiPointCoordinates.size()]));
 
-        assertSerializationEquals(expected, new JtsGeometry(multiPoint));
+        assertSerializationEquals(expected, new JtsGeometry(multiPoint, GeoShapeConstants.SPATIAL_CONTEXT));
     }
 
     @Test
     public void testSerialize_multiPolygon() throws IOException {
         XContentBuilder expected = XContentFactory.jsonBuilder().startObject().field("type", "MultiPolygon")
                 .startArray("coordinates")
-                    .startArray()
-                        .startArray()
-                            .startArray().value(102.0).value(2.0).endArray()
-                            .startArray().value(103.0).value(2.0).endArray()
-                            .startArray().value(103.0).value(3.0).endArray()
-                            .startArray().value(102.0).value(3.0).endArray()
-                            .startArray().value(102.0).value(2.0).endArray()
-                        .endArray()
-                    .endArray()
                     .startArray()
                         .startArray()
                             .startArray().value(100.0).value(0.0).endArray()
@@ -172,6 +164,16 @@ public class GeoJSONShapeSerializerTests {
                             .startArray().value(100.2).value(0.2).endArray()
                         .endArray()
                     .endArray()
+                    .startArray()
+                        .startArray()
+                            .startArray().value(102.0).value(2.0).endArray()
+                            .startArray().value(103.0).value(2.0).endArray()
+                            .startArray().value(103.0).value(3.0).endArray()
+                            .startArray().value(102.0).value(3.0).endArray()
+                            .startArray().value(102.0).value(2.0).endArray()
+                        .endArray()
+                    .endArray()
+
                 .endArray()
                 .endObject();
 
@@ -207,9 +209,9 @@ public class GeoJSONShapeSerializerTests {
                 shellCoordinates.toArray(new Coordinate[shellCoordinates.size()]));
         Polygon withoutHoles = GEOMETRY_FACTORY.createPolygon(shell, null);
 
-        MultiPolygon multiPolygon = GEOMETRY_FACTORY.createMultiPolygon(new Polygon[] {withoutHoles, withHoles});
+        MultiPolygon multiPolygon = GEOMETRY_FACTORY.createMultiPolygon(new Polygon[] {withHoles, withoutHoles});
 
-        assertSerializationEquals(expected, new JtsGeometry(multiPolygon));
+        assertSerializationEquals(expected, new JtsGeometry(multiPolygon, GeoShapeConstants.SPATIAL_CONTEXT));
     }
 
     private void assertSerializationEquals(XContentBuilder expected, Shape shape) throws IOException {

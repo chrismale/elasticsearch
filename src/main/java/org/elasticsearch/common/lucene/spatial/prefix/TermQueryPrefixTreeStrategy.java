@@ -7,17 +7,14 @@ import com.vividsolutions.jts.operation.buffer.BufferOp;
 import com.vividsolutions.jts.operation.buffer.BufferParameters;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
-import org.elasticsearch.common.lucene.search.OrFilter;
 import org.elasticsearch.common.lucene.search.TermFilter;
 import org.elasticsearch.common.lucene.search.XBooleanFilter;
 import org.elasticsearch.common.lucene.spatial.SpatialStrategy;
 import org.elasticsearch.common.lucene.spatial.prefix.tree.Node;
 import org.elasticsearch.common.lucene.spatial.prefix.tree.SpatialPrefixTree;
 import org.elasticsearch.common.geo.ShapeBuilder;
-import org.elasticsearch.index.cache.filter.FilterCache;
 import org.elasticsearch.index.mapper.FieldMapper;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

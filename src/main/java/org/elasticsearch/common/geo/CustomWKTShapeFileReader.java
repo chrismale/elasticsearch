@@ -13,43 +13,59 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Implementation of {@link ShapeFileReader} which supports Shapes being defined in a custom
+ * version of WKT which adds the name of the Shape as a prefix.  An example of the definition
+ * of a Shape is "New Zealand: ENVELOPE (-176.848755 -34.414718, 178.841063  -52.578055)".
+ * Note that ":" is used as a delimiter between name and WKT Shape definition.
+ */
 public class CustomWKTShapeFileReader extends AbstractComponent implements ShapeFileReader {
 
     public CustomWKTShapeFileReader(Settings settings) {
         super(settings);
     }
 
-    public Map<String, Shape> readFile(File file) throws IOException {
+    /**
+     * {@inheritDoc}
+     */
+    public Map<String, Shape> readFiles(File shapeDirectory) throws IOException {
         final WKTShapeParser shapeParser = new WKTShapeParser();
+        final Map<String, Shape> shapesByName = new HashMap<String, Shape>();
 
-        LineProcessor<Map<String, Shape>> lineProcessor = new LineProcessor<Map<String, Shape>>() {
+        for (File file : shapeDirectory.listFiles()) {
+            if (file.isDirectory()) {
+              shapesByName.putAll(readFiles(file));
+            } else {
+                LineProcessor<Void> lineProcessor = new LineProcessor<Void>() {
 
-            Map<String, Shape> shapesByName = new HashMap<String, Shape>();
-
-            @Override
-            public boolean processLine(String line) throws IOException {
-                try {
-                    int delimiter = line.indexOf(':');
-                    if (delimiter == -1) {
-                        logger.error("Delimiter ':' missing from line [{}]", line);
-                        return false;
+                    @Override
+                    public boolean processLine(String line) throws IOException {
+                        try {
+                            int delimiter = line.indexOf(':');
+                            if (delimiter == -1) {
+                                logger.error("Delimiter ':' missing from line [{}]", line);
+                                return false;
+                            }
+                            String name = line.substring(0, delimiter);
+                            Shape shape = shapeParser.parse(line.substring(delimiter + 1));
+                            shapesByName.put(name, shape);
+                            return true;
+                        } catch (ParseException pe) {
+                            logger.error("ParseException thrown while parsing Shape definition", pe);
+                            return false;
+                        }
                     }
-                    String name = line.substring(0, delimiter);
-                    Shape shape = shapeParser.parse(line.substring(delimiter + 1));
-                    shapesByName.put(name, shape);
-                    return true;
-                } catch (ParseException pe) {
-                    logger.error("ParseException thrown while parsing Shape definition", pe);
-                    return false;
-                }
-            }
 
-            @Override
-            public Map<String, Shape> getResult() {
-                return shapesByName;
-            }
-        };
+                    @Override
+                    public Void getResult() {
+                        return null;
+                    }
+                };
 
-        return Files.readLines(file, Charset.forName("UTF-8"), lineProcessor);
+                Files.readLines(file, Charset.forName("UTF-8"), lineProcessor);
+            }
+        }
+
+        return shapesByName;
     }
 }

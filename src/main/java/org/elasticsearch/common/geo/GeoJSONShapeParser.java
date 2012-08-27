@@ -31,8 +31,6 @@ import java.util.Locale;
  */
 public class GeoJSONShapeParser {
 
-    private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
-
     private GeoJSONShapeParser() {
     }
 
@@ -117,13 +115,13 @@ public class GeoJSONShapeParser {
      */
     private static Shape buildShape(String shapeType, CoordinateNode node) {
         if ("point".equals(shapeType)) {
-            return new JtsPoint(GEOMETRY_FACTORY.createPoint(node.coordinate));
+            return new JtsPoint(GeoShapeConstants.GEOMETRY_FACTORY.createPoint(node.coordinate));
         } else if ("linestring".equals(shapeType)) {
-            return new JtsGeometry(GEOMETRY_FACTORY.createLineString(toCoordinates(node)));
+            return new JtsGeometry(GeoShapeConstants.GEOMETRY_FACTORY.createLineString(toCoordinates(node)));
         } else if ("polygon".equals(shapeType)) {
             return new JtsGeometry(buildPolygon(node));
         } else if ("multipoint".equals(shapeType)) {
-            return new JtsGeometry(GEOMETRY_FACTORY.createMultiPoint(toCoordinates(node)));
+            return new JtsGeometry(GeoShapeConstants.GEOMETRY_FACTORY.createMultiPoint(toCoordinates(node)));
         } else if ("envelope".equals(shapeType)) {
             Coordinate[] coordinates = toCoordinates(node);
             return new RectangleImpl(coordinates[0].x, coordinates[1].x, coordinates[1].y, coordinates[0].y);
@@ -132,7 +130,7 @@ public class GeoJSONShapeParser {
             for (int i = 0; i < node.children.size(); i++) {
                 polygons[i] = buildPolygon(node.children.get(i));
             }
-            return new JtsGeometry(GEOMETRY_FACTORY.createMultiPolygon(polygons));
+            return new JtsGeometry(GeoShapeConstants.GEOMETRY_FACTORY.createMultiPolygon(polygons));
         }
 
         throw new UnsupportedOperationException("ShapeType [" + shapeType + "] not supported");
@@ -145,15 +143,15 @@ public class GeoJSONShapeParser {
      * @return Polygon consisting of the coordinates in the CoordinateNode
      */
     private static Polygon buildPolygon(CoordinateNode node) {
-        LinearRing shell = GEOMETRY_FACTORY.createLinearRing(toCoordinates(node.children.get(0)));
+        LinearRing shell = GeoShapeConstants.GEOMETRY_FACTORY.createLinearRing(toCoordinates(node.children.get(0)));
         LinearRing[] holes = null;
         if (node.children.size() > 1) {
             holes = new LinearRing[node.children.size() - 1];
             for (int i = 0; i < node.children.size() - 1; i++) {
-                holes[i] = GEOMETRY_FACTORY.createLinearRing(toCoordinates(node.children.get(i + 1)));
+                holes[i] = GeoShapeConstants.GEOMETRY_FACTORY.createLinearRing(toCoordinates(node.children.get(i + 1)));
             }
         }
-        return GEOMETRY_FACTORY.createPolygon(shell, holes);
+        return GeoShapeConstants.GEOMETRY_FACTORY.createPolygon(shell, holes);
     }
 
     /**

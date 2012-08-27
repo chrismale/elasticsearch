@@ -5,7 +5,6 @@ import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.spatial4j.core.shape.simple.PointImpl;
 import com.spatial4j.core.shape.simple.RectangleImpl;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -20,8 +19,6 @@ import java.util.Locale;
  * Note, instances are not threadsafe but are reusable.
  */
 public class WKTShapeParser {
-
-    private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
     private String rawString;
     private int offset;
@@ -77,16 +74,16 @@ public class WKTShapeParser {
     private Polygon polygon() throws ParseException {
         List<Coordinate[]> coordinateSequenceList = coordinateSequenceList();
 
-        LinearRing shell = GEOMETRY_FACTORY.createLinearRing(coordinateSequenceList.get(0));
+        LinearRing shell = GeoShapeConstants.GEOMETRY_FACTORY.createLinearRing(coordinateSequenceList.get(0));
 
         LinearRing[] holes = null;
         if (coordinateSequenceList.size() > 1) {
             holes = new LinearRing[coordinateSequenceList.size() - 1];
             for (int i = 1; i < coordinateSequenceList.size(); i++) {
-                holes[i - 1] = GEOMETRY_FACTORY.createLinearRing(coordinateSequenceList.get(i));
+                holes[i - 1] = GeoShapeConstants.GEOMETRY_FACTORY.createLinearRing(coordinateSequenceList.get(i));
             }
         }
-        return GEOMETRY_FACTORY.createPolygon(shell, holes);
+        return GeoShapeConstants.GEOMETRY_FACTORY.createPolygon(shell, holes);
     }
 
     /**
@@ -109,7 +106,7 @@ public class WKTShapeParser {
         }
 
         expect(')');
-        return new JtsGeometry(GEOMETRY_FACTORY.createMultiPolygon(polygons.toArray(new Polygon[polygons.size()])));
+        return new JtsGeometry(GeoShapeConstants.GEOMETRY_FACTORY.createMultiPolygon(polygons.toArray(new Polygon[polygons.size()])));
     }
 
     /**

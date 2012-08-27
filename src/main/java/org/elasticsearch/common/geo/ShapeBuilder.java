@@ -18,8 +18,6 @@ import java.util.List;
  */
 public class ShapeBuilder {
 
-    private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
-
     private ShapeBuilder() {
     }
 
@@ -78,7 +76,7 @@ public class ShapeBuilder {
                     .point(rectangle.getMinX(), rectangle.getMaxY()).toPolygon();
         } else if (shape instanceof Point) {
             Point point = (Point) shape;
-            return GEOMETRY_FACTORY.createPoint(new Coordinate(point.getX(), point.getY()));
+            return GeoShapeConstants.GEOMETRY_FACTORY.createPoint(new Coordinate(point.getX(), point.getY()));
         }
 
         throw new IllegalArgumentException("Shape type [" + shape.getClass().getSimpleName() + "] not supported");
@@ -181,9 +179,9 @@ public class ShapeBuilder {
          * @return Built polygon
          */
         public Polygon toPolygon() {
-            LinearRing ring = GEOMETRY_FACTORY.createLinearRing(points.toArray(new Coordinate[points.size()]));
+            LinearRing ring = GeoShapeConstants.GEOMETRY_FACTORY.createLinearRing(points.toArray(new Coordinate[points.size()]));
             LinearRing[] holes = this.holes.isEmpty() ? null : this.holes.toArray(new LinearRing[this.holes.size()]);
-            return GEOMETRY_FACTORY.createPolygon(ring, holes);
+            return GeoShapeConstants.GEOMETRY_FACTORY.createPolygon(ring, holes);
         }
     }
 
@@ -223,7 +221,7 @@ public class ShapeBuilder {
          * @return PolygonBuilder to use to build the remainder of the Polygon.
          */
         public PolygonBuilder endHole() {
-            return polygonBuilder.addHole(GEOMETRY_FACTORY.createLinearRing(points.toArray(new Coordinate[points.size()])));
+            return polygonBuilder.addHole(GeoShapeConstants.GEOMETRY_FACTORY.createLinearRing(points.toArray(new Coordinate[points.size()])));
         }
     }
 }

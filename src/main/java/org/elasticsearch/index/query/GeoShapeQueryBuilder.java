@@ -16,6 +16,7 @@ public class GeoShapeQueryBuilder extends BaseQueryBuilder implements BoostableQ
     private final String name;
     private final Shape shape;
     private final String shapeName;
+    private final String type;
 
     private ShapeRelation relation = ShapeRelation.INTERSECTS;
 
@@ -32,6 +33,7 @@ public class GeoShapeQueryBuilder extends BaseQueryBuilder implements BoostableQ
         this.name = name;
         this.shape = shape;
         this.shapeName = null;
+        this.type = null;
     }
 
     /**
@@ -41,10 +43,11 @@ public class GeoShapeQueryBuilder extends BaseQueryBuilder implements BoostableQ
      * @param name Name of the field that will be queried
      * @param shapeName Name of a stored Shape that will be used in the query
      */
-    public GeoShapeQueryBuilder(String name, String shapeName) {
+    public GeoShapeQueryBuilder(String name, String shapeName, String type) {
         this.name = name;
         this.shape = null;
         this.shapeName = shapeName;
+        this.type = type;
     }
 
     /**
@@ -83,8 +86,13 @@ public class GeoShapeQueryBuilder extends BaseQueryBuilder implements BoostableQ
             GeoJSONShapeSerializer.serialize(shape, builder);
             builder.endObject();
         } else {
-            builder.field("shape", shapeName);
+            builder.startObject("named_shape")
+                    .field("name", shapeName)
+                    .field("type", type)
+                    .endObject();
         }
+
+        builder.endObject();
 
         if (boost != -1) {
             builder.field("boost", boost);

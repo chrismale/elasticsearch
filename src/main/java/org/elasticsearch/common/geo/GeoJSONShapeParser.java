@@ -57,9 +57,6 @@ public class GeoJSONShapeParser {
                 if ("type".equals(fieldName)) {
                     token = parser.nextToken();
                     shapeType = parser.text().toLowerCase(Locale.ENGLISH);
-                    if (shapeType == null) {
-                        throw new ElasticSearchParseException("Unknown Shape type [" + parser.text() + "]");
-                    }
                 } else if ("coordinates".equals(fieldName)) {
                     token = parser.nextToken();
                     node = parseCoordinates(parser);

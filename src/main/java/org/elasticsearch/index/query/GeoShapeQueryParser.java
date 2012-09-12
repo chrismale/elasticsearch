@@ -37,7 +37,6 @@ public class GeoShapeQueryParser implements QueryParser {
         String fieldName = null;
         ShapeRelation shapeRelation = null;
         Shape shape = null;
-        String shapeName = null;
 
         XContentParser.Token token;
         String currentFieldName = null;
@@ -57,8 +56,6 @@ public class GeoShapeQueryParser implements QueryParser {
                         if ("shape".equals(currentFieldName)) {
                             if (token == XContentParser.Token.START_OBJECT) {
                                 shape = GeoJSONShapeParser.parse(parser);
-                            } else if (token == XContentParser.Token.VALUE_STRING) {
-                                shapeName = parser.text();
                             } else {
                                 throw new QueryParsingException(parseContext.index(), "Unsupported shape definition");
                             }
@@ -66,6 +63,28 @@ public class GeoShapeQueryParser implements QueryParser {
                             shapeRelation = ShapeRelation.getRelationByName(parser.text());
                             if (shapeRelation == null) {
                                 throw new QueryParsingException(parseContext.index(), "Unknown shape operation [" + parser.text() + " ]");
+                            }
+                        } else if ("named_shape".equals(currentFieldName)) {
+                            String name = null;
+                            String type = null;
+                            while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
+                                if (token == XContentParser.Token.FIELD_NAME) {
+                                    currentFieldName = parser.currentName();
+                                } else if (token.isValue()) {
+                                    if ("name".equals(currentFieldName)) {
+                                        name = parser.text();
+                                    } else if ("type".equals(currentFieldName)) {
+                                        type = parser.text();
+                                    }
+                                }
+                            }
+                            if (name == null || type == null) {
+                                throw new QueryParsingException(parseContext.index(), "Named Shape name or type missing");
+                            }
+                            shape = shapeService.shape(name, type);
+                            if (shape == null) {
+                                throw new QueryParsingException(parseContext.index(),
+                                        "Shape with name [" + name + "] in type [" + type + "] not found");
                             }
                         }
                     }
@@ -77,12 +96,7 @@ public class GeoShapeQueryParser implements QueryParser {
             }
         }
 
-        if (shapeName != null) {
-            shape = shapeService.shape(shapeName);
-            if (shape == null) {
-                throw new QueryParsingException(parseContext.index(), "No Shape with name [" + shapeName + "] currently registered");
-            }
-        } else if (shape == null) {
+        if (shape == null) {
             throw new QueryParsingException(parseContext.index(), "No Shape defined");
         }
 

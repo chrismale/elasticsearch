@@ -1,21 +1,24 @@
 package org.elasticsearch.common.geo;
 
-import com.google.common.io.Closeables;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFReader;
+import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.simple.PointImpl;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
 import org.elasticsearch.ElasticSearchIllegalArgumentException;
 import org.elasticsearch.ElasticSearchParseException;
-import org.elasticsearch.common.inject.Inject;
-import org.elasticsearch.common.settings.Settings;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Simple implementation of a parser of ESRI ShapeFiles.  Implementation is derived from
@@ -24,12 +27,13 @@ import java.util.*;
  * Supported Shape types are:
  * <ul>
  * <li>Polygon</li>
- * <li>Point</li>
  * </ul>
  * </p>
  */
 @SuppressWarnings("unused")
-public class ESRIShapeFileReader implements ShapeFileReader {
+public class ESRIShapeFileReader {
+
+    public static final Shape DUMMY_SHAPE = new PointImpl(0, 0);
 
     private static final int FILE_CODE = 9994;
     private static final int VERSION = 1000;
@@ -63,109 +67,47 @@ public class ESRIShapeFileReader implements ShapeFileReader {
                     return shapeType;
                 }
             }
-            throw new ElasticSearchIllegalArgumentException("Unknown ShapeType with value [" + value + "]");
+            throw new ElasticSearchParseException("Unknown ShapeType with value [" + value + "]");
         }
     }
 
-    private final String nameField;
+    public static List<Map<String, Object>> parseFiles(ByteBuffer shpBuffer, InputStream dbfFile) throws IOException {
+        List<Shape> shapes = parseShpFile(shpBuffer);
+        List<Map<String, Object>> shapeMetadata = parseDBFFile(dbfFile);
 
-    /**
-     * Creates a new ESRIShapeFileReader.
-     *
-     * @param settings Configuration settings.  Currently "shape.name.field" can be used
-     *                 to specify the name of the field in the DBF file that has the
-     *                 Shape names.
-     */
-    @Inject
-    public ESRIShapeFileReader(Settings settings) {
-        this.nameField = settings.get("shapefile.name.field", "name");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Map<String, Shape> readFiles(File shapeDirectory) throws IOException {
-        Map<String, Shape> shapesByName = new HashMap<String, Shape>();
-
-        Set<File> shpFiles = new HashSet<File>();
-
-        for (File file : shapeDirectory.listFiles()) {
-            if (file.isDirectory()) {
-                shapesByName.putAll(readFiles(file));
-            } else if (file.getName().endsWith(".shp")) {
-                shpFiles.add(file);
-            }
+        for (int i = 0; i < shapes.size(); i++) {
+            shapeMetadata.get(i).put("shape", shapes.get(i));
         }
 
-        for (File shpFile : shpFiles) {
-            String shpPath = shpFile.getPath();
-            String dbfFileName = shpPath.substring(0, shpPath.length() - 3) + "dbf";
-            File dbfFile = new File(dbfFileName);
-
-            if (dbfFile.exists()) {
-                shapesByName.putAll(parseFiles(shpFile, dbfFile));
-            }
-        }
-
-        return shapesByName;
-    }
-
-    /**
-     * Parses the given SHP file and DBF file, extracting the Shapes and their names
-     *
-     * @param shpFile SHP file
-     * @param dbfFile DBF file
-     * @return Shapes with their names
-     * @throws IOException Can be thrown if there is a problem reading the files
-     */
-    public Map<String, Shape> parseFiles(File shpFile, File dbfFile) throws IOException {
-        List<Shape> shapes = parseShpFile(shpFile);
-        return parseDBFFile(dbfFile, shapes);
+        return shapeMetadata;
     }
 
     /**
      * Parses the SHP file, extracting the Shapes contained
      *
-     * @param file SHP file to parse
+     * @param shpBuffer SHP file contents to parse
      * @return List of Shapes contained in the file
-     * @throws IOException Can be thrown if there is a problem reading the SHP File
      */
-    private List<Shape> parseShpFile(File file) throws IOException {
-        FileInputStream inputStream = null;
-        FileChannel fileChannel = null;
+    public static List<Shape> parseShpFile(ByteBuffer shpBuffer) {
+        ShapeType shapeType = parseHeader(shpBuffer);
 
-        try {
-            inputStream = new FileInputStream(file);
-            fileChannel = inputStream.getChannel();
+        List<Shape> shapes = new ArrayList<Shape>();
 
-            ShapeType shapeType = parseHeader(fileChannel);
-
-            List<Shape> shapes = new ArrayList<Shape>();
-
-            while (fileChannel.position() < fileChannel.size()) {
-                shapes.add(parseRecord(fileChannel, shapeType));
-            }
-
-            return shapes;
-        } finally {
-            Closeables.closeQuietly(inputStream);
-            Closeables.closeQuietly(fileChannel);
+        while (shpBuffer.hasRemaining()) {
+            shapes.add(parseRecord(shpBuffer, shapeType));
         }
+
+        return shapes;
     }
 
     /**
      * Parses the SHP file header.  Note, only the type of Shapes contained in
      * the file is returned.  All other information is read, validated, and discarded.
      *
-     * @param fileChannel FileChannel to read the file contents from
+     * @param headerBuffer ByteBuffer containing the header
      * @return {@link ShapeType} representing the types of Shapes contained in the file
-     * @throws IOException Can be thrown if there is a problem reading from the file
      */
-    private ShapeType parseHeader(FileChannel fileChannel) throws IOException {
-        ByteBuffer headerBuffer = ByteBuffer.allocate(100);
-        fileChannel.read(headerBuffer);
-        headerBuffer.flip();
-
+    private static ShapeType parseHeader(ByteBuffer headerBuffer) {
         int fileCode = headerBuffer.getInt();
         if (fileCode != FILE_CODE) {
             throw new ElasticSearchParseException("Header does not have correct file code. " +
@@ -207,29 +149,20 @@ public class ESRIShapeFileReader implements ShapeFileReader {
     }
 
     /**
-     * Parses the Shape record at the current position in the SHP file
+     * Parses the current Shape record
      *
-     * @param fileChannel FileChannel for reading from the SHP file
+     * @param recordBuffer ByteBuffer containing the record
      * @param shapeType Type of Shape that will be read
      * @return Shape read from the SHP File
-     * @throws IOException Can be thrown if there is a problem reading from the file
      */
-    private Shape parseRecord(FileChannel fileChannel, ShapeType shapeType) throws IOException {
-        ByteBuffer headerBuffer = ByteBuffer.allocate(8);
-        fileChannel.read(headerBuffer);
-        headerBuffer.flip();
-
+    private static Shape parseRecord(ByteBuffer recordBuffer, ShapeType shapeType) {
         // Record number is ignored, we assume the records are in order
-        int recordNumber = headerBuffer.getInt();
-
-        int contentLength = headerBuffer.getInt();
+        int recordNumber = recordBuffer.getInt();
         // Length is defined as 16-bit words in file
-        ByteBuffer contentBuffer = ByteBuffer.allocate(contentLength * 2);
-        fileChannel.read(contentBuffer);
-        contentBuffer.flip();
+        int contentLength = recordBuffer.getInt();
 
         if (shapeType == ShapeType.POLYGON) {
-            return parsePolygon(contentBuffer);
+            return parsePolygon(recordBuffer);
         } else {
             throw new UnsupportedOperationException("ShapeType [" + shapeType.name() + "] not currently supported");
         }
@@ -241,7 +174,7 @@ public class ESRIShapeFileReader implements ShapeFileReader {
      * @param polygonBuffer ByteBuffer holding the representation of a polygon
      * @return Parsed Polygon
      */
-    private Shape parsePolygon(ByteBuffer polygonBuffer) {
+    private static Shape parsePolygon(ByteBuffer polygonBuffer) {
         polygonBuffer.order(ByteOrder.LITTLE_ENDIAN);
 
         int shapeType = polygonBuffer.getInt();
@@ -267,7 +200,8 @@ public class ESRIShapeFileReader implements ShapeFileReader {
         List<Coordinate> points = new ArrayList<Coordinate>();
 
         for (int i = 0; i < numPoints; i++) {
-            points.add(parseCoordinates(polygonBuffer));
+            Coordinate coordinate = parseCoordinates(polygonBuffer);
+            points.add(coordinate);
         }
 
         List<LinearRing> rings = new ArrayList<LinearRing>(numParts);
@@ -276,20 +210,75 @@ public class ESRIShapeFileReader implements ShapeFileReader {
         for (int i = parts.length - 1; i >= 0; i--) {
             int pointer = parts[i];
             List<Coordinate> ringPoints = points.subList(pointer, lastPointer);
+
+            // TODO Some Polygons (such as Antarctica) have crazy latitude and longitudes
+            // we need to think about how best to normalize them (which OGR seems to do)
+            for (Coordinate point : ringPoints) {
+                if (!isValidCoordinate(point)) {
+                    return DUMMY_SHAPE;
+                }
+            }
             rings.add(GeoShapeConstants.GEOMETRY_FACTORY.createLinearRing(ringPoints.toArray(new Coordinate[ringPoints.size()])));
             lastPointer = pointer;
         }
 
-        LinearRing shell = rings.get(rings.size() - 1);
-        LinearRing[] holes = null;
-        if (rings.size() > 1) {
-            holes = new LinearRing[rings.size() - 1];
-            for (int i = 0; i < holes.length; i++) {
-                holes[i] = rings.get(i);
+        // ShapeFiles do not differentiate between Polygons, Polygons with holes, MultiPolygons and MultiPolygons
+        // with holes.  Consequently we need to infer which rings are part of a single Polygon.
+        // This algorithm assumes that holes for a polygon follow its shell ring and are contained within.
+        List<List<LinearRing>> polygons = new ArrayList<List<LinearRing>>();
+        List<LinearRing> currentPolygon = new ArrayList<LinearRing>();
+        LinearRing currentRing = rings.get(0);
+        currentPolygon.add(currentRing);
+
+        for (int i = 1; i < rings.size(); i++) {
+            LinearRing ring = rings.get(i);
+            if (currentRing.covers(ring)) {
+                currentPolygon.add(currentRing);
+            } else {
+                polygons.add(currentPolygon);
+                currentPolygon = new ArrayList<LinearRing>();
+                currentPolygon.add(ring);
+                currentRing = ring;
             }
         }
 
-        return new JtsGeometry(GeoShapeConstants.GEOMETRY_FACTORY.createPolygon(shell, holes), GeoShapeConstants.SPATIAL_CONTEXT);
+        polygons.add(currentPolygon);
+
+        Polygon[] builtPolygons = toPolygons(polygons);
+
+        // TODO Some Polygons (such as Canada) contain points that fail the validations in JtsGeometry
+        // Theres not much we can do about this since it is likely that using the Shape will cause problems
+        try {
+            return builtPolygons.length == 1 ? new JtsGeometry(builtPolygons[0], GeoShapeConstants.SPATIAL_CONTEXT) :
+                new JtsGeometry(GeoShapeConstants.GEOMETRY_FACTORY.createMultiPolygon(builtPolygons), GeoShapeConstants.SPATIAL_CONTEXT);
+        } catch (InvalidShapeException ise) {
+            return DUMMY_SHAPE;
+        }
+    }
+
+    /**
+     * Converts the given List of LinearRings into Polygons.  It is assumed that the
+     * first LinearRing in each list is the shell and subsequent rings are holes
+     *
+     * @param rings List of LinearRings to be converted into Polygons
+     * @return Polygons constructed from the LinearRings
+     */
+    private static Polygon[] toPolygons(List<List<LinearRing>> rings) {
+        Polygon[] polygons = new Polygon[rings.size()];
+
+        for (int i = 0; i < rings.size(); i++) {
+            List<LinearRing> polygon = rings.get(i);
+            LinearRing shell = polygon.get(polygon.size() - 1);
+            LinearRing[] holes = null;
+            if (polygon.size() > 1) {
+                holes = new LinearRing[polygon.size() - 1];
+                for (int j = 0; i < holes.length; j++) {
+                    holes[j] = polygon.get(j);
+                }
+            }
+            polygons[i] = GeoShapeConstants.GEOMETRY_FACTORY.createPolygon(shell, holes);
+        }
+        return polygons;
     }
 
     /**
@@ -301,7 +290,7 @@ public class ESRIShapeFileReader implements ShapeFileReader {
      * @param coordinateBuffer Buffer containing the coordinates to read
      * @return Coordinate holding the X and Y values
      */
-    private Coordinate parseCoordinates(ByteBuffer coordinateBuffer) {
+    private static Coordinate parseCoordinates(ByteBuffer coordinateBuffer) {
         coordinateBuffer.order(ByteOrder.LITTLE_ENDIAN);
 
         double x = coordinateBuffer.getDouble();
@@ -310,52 +299,51 @@ public class ESRIShapeFileReader implements ShapeFileReader {
     }
 
     /**
+     * Validates that the given coordinate values fall within the typical ranges
+     * of -180 <= lon <= 180 && -90 <= lat <= 90
+     *
+     * @param coordinate Coordinate to validate
+     * @return {@code true} if the Coordinate has valid values, {@code false} otherwise
+     */
+    private static boolean isValidCoordinate(Coordinate coordinate) {
+        return coordinate.x <= 180 && coordinate.x >= -180 &&
+                coordinate.y <= 90 && coordinate.y >= -90;
+    }
+
+    /**
      * Parses the DBF file, extracting the name property if defined, and associating
      * it with the appropriate Shapes.  Note, it is assumed that the Shapes in the given
      * List are in the same order as in the DBF file.
      *
-     * @param file DBF File to parse
-     * @param shapes List of Shapes to associate names with
+     * @param dbfFile DBF File to parse
      * @return Shapes with their associated names
      * @throws IOException Can be thrown if there is a problem reading from the file
      */
-    private Map<String, Shape> parseDBFFile(File file, List<Shape> shapes) throws IOException {
-        InputStream inputStream = null;
+    public static List<Map<String, Object>> parseDBFFile(InputStream dbfFile) throws IOException {
+        DBFReader reader = new DBFReader(dbfFile);
 
-        try {
-            inputStream = new FileInputStream(file);
-            DBFReader reader = new DBFReader(inputStream);
+        int numFields = reader.getFieldCount();
+        int numRecords = reader.getRecordCount();
 
-            int numFields = reader.getFieldCount();
-            int numRecords = reader.getRecordCount();
+        List<String> fieldNames = new ArrayList<String>();
 
-            int nameFieldNumber = -1;
-
-            for (int i = 0; i < numFields; i++) {
-                DBFField field = reader.getField(i);
-                if (nameField.equals(field.getName().toLowerCase())) {
-                    nameFieldNumber = i;
-                }
-            }
-
-            if (nameFieldNumber == -1) {
-                throw new ElasticSearchParseException("Name field [" + nameField + "] not found in DBF file");
-            }
-
-            Map<String, Shape> shapesByName = new HashMap<String, Shape>();
-
-            int recordNumber = 0;
-
-            Object[] record;
-            while ((record = reader.nextRecord()) != null) {
-                String name = ((String) record[nameFieldNumber]).trim();
-                if (name.length() > 0) {
-                    shapesByName.put(name, shapes.get(recordNumber++));
-                }
-            }
-            return shapesByName;
-        } finally {
-            Closeables.closeQuietly(inputStream);
+        for (int i = 0; i < numFields; i++) {
+            DBFField field = reader.getField(i);
+            fieldNames.add(field.getName());
         }
+
+        List<Map<String, Object>> records = new ArrayList<Map<String, Object>>();
+
+        int recordNumber = 0;
+
+        Object[] record;
+        while ((record = reader.nextRecord()) != null) {
+            Map<String, Object> recordData = new HashMap<String, Object>();
+            for (int i = 0; i < fieldNames.size(); i++) {
+                recordData.put(fieldNames.get(i), record[i]);
+            }
+            records.add(recordData);
+        }
+        return records;
     }
 }

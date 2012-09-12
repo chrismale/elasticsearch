@@ -1,7 +1,6 @@
 package org.elasticsearch.index.query;
 
 import com.spatial4j.core.shape.Shape;
-import org.elasticsearch.ElasticSearchIllegalArgumentException;
 import org.elasticsearch.common.geo.GeoJSONShapeSerializer;
 import org.elasticsearch.common.geo.ShapeRelation;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -16,6 +15,7 @@ public class GeoShapeFilterBuilder extends BaseFilterBuilder {
     private final String name;
     private final Shape shape;
     private final String shapeName;
+    private final String type;
 
     private ShapeRelation relation = ShapeRelation.INTERSECTS;
 
@@ -35,6 +35,7 @@ public class GeoShapeFilterBuilder extends BaseFilterBuilder {
         this.name = name;
         this.shape = shape;
         this.shapeName = null;
+        this.type = null;
     }
 
     /**
@@ -44,10 +45,11 @@ public class GeoShapeFilterBuilder extends BaseFilterBuilder {
      * @param name Name of the field that will be filtered
      * @param shapeName Name of a stored Shape that will be used in the filter
      */
-    public GeoShapeFilterBuilder(String name, String shapeName) {
+    public GeoShapeFilterBuilder(String name, String shapeName, String type) {
         this.name = name;
         this.shape = null;
         this.shapeName = shapeName;
+        this.type = type;
     }
 
     /**
@@ -107,7 +109,10 @@ public class GeoShapeFilterBuilder extends BaseFilterBuilder {
             GeoJSONShapeSerializer.serialize(shape, builder);
             builder.endObject();
         } else {
-            builder.field("shape", shapeName);
+            builder.startObject("named_shape")
+                    .field("name", shapeName)
+                    .field("type", type)
+                    .endObject();
         }
 
         builder.endObject();

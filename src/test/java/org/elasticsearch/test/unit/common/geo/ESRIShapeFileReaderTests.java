@@ -5,8 +5,10 @@ import org.elasticsearch.common.geo.ESRIShapeFileReader;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
@@ -19,11 +21,22 @@ public class ESRIShapeFileReaderTests {
 
     @Test
     public void testReadFiles() throws IOException {
-        ESRIShapeFileReader reader = new ESRIShapeFileReader(ImmutableSettings.settingsBuilder().build());
-        File shapeDirectory = new File(getClass().getResource("/org/elasticsearch/test/unit/common/geo/esri").getPath());
-        Map<String, Shape> shapesByName = reader.readFiles(shapeDirectory);
+        FileInputStream fileInputStream = new FileInputStream(
+                new File(getClass().getResource("/org/elasticsearch/test/unit/common/geo/esri/test.shp").getFile()));
+        ByteBuffer shpBuffer = ByteBuffer.allocate(2048000);
+        fileInputStream.getChannel().read(shpBuffer);
+        shpBuffer.flip();
 
-        assertEquals(shapesByName.size(), 177);
-        assertNotNull(shapesByName.get("New Zealand"));
+        InputStream dbfInputStream = new FileInputStream(
+                new File(getClass().getResource("/org/elasticsearch/test/unit/common/geo/esri/test.dbf").getFile()));
+
+        List<Shape> shapes = ESRIShapeFileReader.parseShpFile(shpBuffer);
+        List<Map<String, Object>> shapeMetadata = ESRIShapeFileReader.parseDBFFile(dbfInputStream);
+
+        assertEquals(shapes.size(), 177);
+        assertEquals(shapeMetadata.size(), 177);
+
+        dbfInputStream.close();
+        fileInputStream.close();
     }
 }

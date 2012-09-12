@@ -16,8 +16,6 @@ public class ShapeModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        // TODO: Need to allow other implementations to be chosen once we have them
-        bind(ShapeFileReader.class).to(ESRIShapeFileReader.class).asEagerSingleton();
-        bind(ShapeService.class).to(LocalShapeService.class).asEagerSingleton();
+        bind(ShapeService.class).asEagerSingleton();
     }
 }

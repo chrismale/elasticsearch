@@ -1,4 +1,4 @@
-package org.elasticsearch.common.geo;
+package org.elasticsearch.shape.parsers;
 
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.simple.PointImpl;
@@ -6,6 +6,8 @@ import com.spatial4j.core.shape.simple.RectangleImpl;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
+import org.elasticsearch.shape.GeoShapeConstants;
+import org.elasticsearch.shape.JtsGeometry;
 
 import java.text.ParseException;
 import java.util.ArrayList;

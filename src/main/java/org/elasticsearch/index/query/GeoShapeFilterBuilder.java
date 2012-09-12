@@ -1,8 +1,8 @@
 package org.elasticsearch.index.query;
 
 import com.spatial4j.core.shape.Shape;
-import org.elasticsearch.common.geo.GeoJSONShapeSerializer;
-import org.elasticsearch.common.geo.ShapeRelation;
+import org.elasticsearch.shape.parsers.GeoJSONShapeSerializer;
+import org.elasticsearch.common.lucene.spatial.ShapeRelation;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
 import java.io.IOException;

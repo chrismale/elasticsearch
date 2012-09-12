@@ -1,10 +1,12 @@
-package org.elasticsearch.common.geo;
+package org.elasticsearch.shape.parsers;
 
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsPoint;
 import com.spatial4j.core.shape.simple.RectangleImpl;
 import com.vividsolutions.jts.geom.*;
 import org.elasticsearch.ElasticSearchParseException;
+import org.elasticsearch.shape.GeoShapeConstants;
+import org.elasticsearch.shape.JtsGeometry;
 import org.elasticsearch.common.xcontent.XContentParser;
 
 import java.io.IOException;

@@ -21,7 +21,7 @@ package org.elasticsearch.test.unit.index.percolator;
 
 import org.elasticsearch.cluster.ClusterService;
 import org.elasticsearch.common.bytes.BytesReference;
-import org.elasticsearch.common.geo.ShapeModule;
+import org.elasticsearch.shape.ShapeModule;
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.inject.Injector;
 import org.elasticsearch.common.inject.ModulesBuilder;

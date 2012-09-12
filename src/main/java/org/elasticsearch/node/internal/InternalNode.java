@@ -36,7 +36,7 @@ import org.elasticsearch.common.collect.Tuple;
 import org.elasticsearch.common.component.Lifecycle;
 import org.elasticsearch.common.component.LifecycleComponent;
 import org.elasticsearch.common.compress.CompressorFactory;
-import org.elasticsearch.common.geo.ShapeModule;
+import org.elasticsearch.shape.ShapeModule;
 import org.elasticsearch.common.inject.Injector;
 import org.elasticsearch.common.inject.Injectors;
 import org.elasticsearch.common.inject.ModulesBuilder;

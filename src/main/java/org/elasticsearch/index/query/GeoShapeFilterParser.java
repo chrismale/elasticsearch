@@ -2,9 +2,9 @@ package org.elasticsearch.index.query;
 
 import com.spatial4j.core.shape.Shape;
 import org.apache.lucene.search.Filter;
-import org.elasticsearch.common.geo.ShapeRelation;
-import org.elasticsearch.common.geo.GeoJSONShapeParser;
-import org.elasticsearch.common.geo.ShapeService;
+import org.elasticsearch.common.lucene.spatial.ShapeRelation;
+import org.elasticsearch.shape.parsers.GeoJSONShapeParser;
+import org.elasticsearch.shape.ShapeService;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.index.cache.filter.support.CacheKeyFilter;

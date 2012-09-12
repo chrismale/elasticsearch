@@ -1,4 +1,4 @@
-package org.elasticsearch.common.geo;
+package org.elasticsearch.shape;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.distance.DistanceUnits;

@@ -1,4 +1,4 @@
-package org.elasticsearch.test.unit.common.geo;
+package org.elasticsearch.test.unit.shape;
 
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Rectangle;
@@ -7,7 +7,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
-import org.elasticsearch.common.geo.ShapeBuilder;
+import org.elasticsearch.shape.ShapeBuilder;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;

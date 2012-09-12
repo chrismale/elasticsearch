@@ -20,7 +20,7 @@
 package org.elasticsearch.rest.action;
 
 import com.google.common.collect.Lists;
-import org.elasticsearch.common.geo.RestShapeDataSetAction;
+import org.elasticsearch.shape.RestShapeDataSetAction;
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.action.admin.cluster.health.RestClusterHealthAction;

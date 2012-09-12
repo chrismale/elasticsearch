@@ -1,4 +1,4 @@
-package org.elasticsearch.common.geo;
+package org.elasticsearch.common.lucene.spatial;
 
 import java.util.Locale;
 

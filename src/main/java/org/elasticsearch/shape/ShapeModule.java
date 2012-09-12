@@ -1,4 +1,4 @@
-package org.elasticsearch.common.geo;
+package org.elasticsearch.shape;
 
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.settings.Settings;

@@ -1,8 +1,8 @@
-package org.elasticsearch.test.unit.common.geo;
+package org.elasticsearch.test.unit.shape.parsers;
 
 import com.spatial4j.core.shape.Shape;
-import org.elasticsearch.common.geo.ShapeBuilder;
-import org.elasticsearch.common.geo.WKTShapeParser;
+import org.elasticsearch.shape.ShapeBuilder;
+import org.elasticsearch.shape.parsers.WKTShapeParser;
 import org.testng.annotations.Test;
 
 import java.text.ParseException;

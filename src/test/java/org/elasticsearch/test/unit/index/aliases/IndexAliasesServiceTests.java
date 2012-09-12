@@ -21,7 +21,6 @@ package org.elasticsearch.test.unit.index.aliases;
 
 import org.elasticsearch.cluster.ClusterService;
 import org.elasticsearch.common.compress.CompressedString;
-import org.elasticsearch.common.geo.ShapeModule;
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.inject.Injector;
 import org.elasticsearch.common.inject.ModulesBuilder;

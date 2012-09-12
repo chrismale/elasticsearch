@@ -1,11 +1,11 @@
-package org.elasticsearch.test.unit.common.geo;
+package org.elasticsearch.test.unit.shape.parsers;
 
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsPoint;
 import com.vividsolutions.jts.geom.*;
-import org.elasticsearch.common.geo.GeoJSONShapeParser;
-import org.elasticsearch.common.geo.GeoShapeConstants;
-import org.elasticsearch.common.geo.JtsGeometry;
+import org.elasticsearch.shape.parsers.GeoJSONShapeParser;
+import org.elasticsearch.shape.GeoShapeConstants;
+import org.elasticsearch.shape.JtsGeometry;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.json.JsonXContent;

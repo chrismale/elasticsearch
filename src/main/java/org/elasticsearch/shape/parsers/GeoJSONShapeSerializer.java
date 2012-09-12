@@ -1,9 +1,10 @@
-package org.elasticsearch.common.geo;
+package org.elasticsearch.shape.parsers;
 
 import com.spatial4j.core.shape.*;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.Point;
 import org.elasticsearch.ElasticSearchIllegalArgumentException;
+import org.elasticsearch.shape.JtsGeometry;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
 import java.io.IOException;

@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.elasticsearch.common.geo.ShapeBuilder.*;
+import static org.elasticsearch.shape.ShapeBuilder.*;
 import static org.testng.Assert.assertTrue;
 
 /**

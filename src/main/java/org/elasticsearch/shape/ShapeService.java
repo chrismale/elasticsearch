@@ -1,4 +1,4 @@
-package org.elasticsearch.common.geo;
+package org.elasticsearch.shape;
 
 import com.spatial4j.core.shape.Shape;
 import org.elasticsearch.ElasticSearchIllegalStateException;
@@ -15,6 +15,8 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.json.JsonXContent;
+import org.elasticsearch.shape.parsers.GeoJSONShapeParser;
+import org.elasticsearch.shape.parsers.GeoJSONShapeSerializer;
 
 import java.io.IOException;
 import java.util.*;

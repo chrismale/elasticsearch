@@ -5,11 +5,9 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
-import org.elasticsearch.common.geo.ShapeRelation;
 import org.elasticsearch.common.lucene.spatial.prefix.NodeTokenStream;
 import org.elasticsearch.common.lucene.spatial.prefix.tree.Node;
 import org.elasticsearch.common.lucene.spatial.prefix.tree.SpatialPrefixTree;
-import org.elasticsearch.index.cache.filter.FilterCache;
 import org.elasticsearch.index.mapper.FieldMapper;
 
 import java.util.List;

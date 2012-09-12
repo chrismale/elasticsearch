@@ -1,7 +1,6 @@
 package org.elasticsearch.common.lucene.spatial.prefix;
 
 import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.operation.buffer.BufferOp;
 import com.vividsolutions.jts.operation.buffer.BufferParameters;
@@ -12,7 +11,9 @@ import org.elasticsearch.common.lucene.search.XBooleanFilter;
 import org.elasticsearch.common.lucene.spatial.SpatialStrategy;
 import org.elasticsearch.common.lucene.spatial.prefix.tree.Node;
 import org.elasticsearch.common.lucene.spatial.prefix.tree.SpatialPrefixTree;
-import org.elasticsearch.common.geo.ShapeBuilder;
+import org.elasticsearch.shape.GeoShapeConstants;
+import org.elasticsearch.shape.JtsGeometry;
+import org.elasticsearch.shape.ShapeBuilder;
 import org.elasticsearch.index.mapper.FieldMapper;
 
 import java.util.List;
@@ -115,7 +116,7 @@ public class TermQueryPrefixTreeStrategy extends SpatialStrategy {
         // TODO: Need some way to detect if having the buffer is going to push the shape over the dateline
         // and throw an error in this instance
         Geometry buffer = BufferOp.bufferOp(shapeGeometry, CONTAINS_BUFFER_DISTANCE, BUFFER_PARAMETERS);
-        Shape bufferedShape = new JtsGeometry(buffer.difference(shapeGeometry));
+        Shape bufferedShape = new JtsGeometry(buffer.difference(shapeGeometry), GeoShapeConstants.SPATIAL_CONTEXT);
         Filter bufferedFilter = createIntersectsFilter(bufferedShape);
 
         XBooleanFilter filter = new XBooleanFilter();
@@ -134,7 +135,7 @@ public class TermQueryPrefixTreeStrategy extends SpatialStrategy {
 
         Geometry shapeGeometry = ShapeBuilder.toJTSGeometry(shape);
         Geometry buffer = BufferOp.bufferOp(shapeGeometry, CONTAINS_BUFFER_DISTANCE, BUFFER_PARAMETERS);
-        Shape bufferedShape = new JtsGeometry(buffer.difference(shapeGeometry));
+        Shape bufferedShape = new JtsGeometry(buffer.difference(shapeGeometry), GeoShapeConstants.SPATIAL_CONTEXT);
         Query bufferedQuery = createIntersectsQuery(bufferedShape);
 
         BooleanQuery query = new BooleanQuery();

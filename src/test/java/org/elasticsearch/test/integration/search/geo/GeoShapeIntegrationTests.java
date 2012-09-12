@@ -3,15 +3,14 @@ package org.elasticsearch.test.integration.search.geo;
 import com.spatial4j.core.shape.Shape;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.geo.ShapeRelation;
+import org.elasticsearch.common.lucene.spatial.ShapeRelation;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.index.query.GeoShapeFilterParser;
 import org.elasticsearch.test.integration.AbstractNodesTests;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.elasticsearch.common.geo.ShapeBuilder.newRectangle;
+import static org.elasticsearch.shape.ShapeBuilder.newRectangle;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import static org.elasticsearch.index.query.FilterBuilders.geoShapeFilter;
 import static org.elasticsearch.index.query.QueryBuilders.filteredQuery;

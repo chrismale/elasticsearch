@@ -25,7 +25,7 @@ import org.apache.lucene.search.spans.*;
 import org.apache.lucene.util.NumericUtils;
 import org.elasticsearch.cluster.ClusterService;
 import org.elasticsearch.common.bytes.BytesArray;
-import org.elasticsearch.common.geo.ShapeModule;
+import org.elasticsearch.shape.ShapeModule;
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.inject.Injector;
 import org.elasticsearch.common.inject.ModulesBuilder;

@@ -1,8 +1,7 @@
-package org.elasticsearch.test.integration.search.geo;
+package org.elasticsearch.test.unit.shape;
 
 import com.spatial4j.core.shape.Shape;
-import org.elasticsearch.common.geo.RemoteESRIShapeDataSet;
-import org.elasticsearch.common.geo.ShapeDataSet;
+import org.elasticsearch.shape.RemoteESRIShapeDataSet;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -17,7 +16,7 @@ public class RemoteShapeDataSetTests {
     @Test
     public void testShapeData() throws IOException {
         String filePath = RemoteShapeDataSetTests.class.getResource(
-                "/org/elasticsearch/test/integration/search/geo/test.zip").getFile();
+                "/org/elasticsearch/test/unit/shape/test.zip").getFile();
         RemoteESRIShapeDataSet testDataSet = new RemoteESRIShapeDataSet(
                 "test_data_set", "file://" + filePath, "name");
 

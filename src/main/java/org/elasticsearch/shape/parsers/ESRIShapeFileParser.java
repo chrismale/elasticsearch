@@ -1,4 +1,4 @@
-package org.elasticsearch.common.geo;
+package org.elasticsearch.shape.parsers;
 
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFReader;
@@ -10,6 +10,8 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 import org.elasticsearch.ElasticSearchIllegalArgumentException;
 import org.elasticsearch.ElasticSearchParseException;
+import org.elasticsearch.shape.GeoShapeConstants;
+import org.elasticsearch.shape.JtsGeometry;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +33,7 @@ import java.util.Map;
  * </p>
  */
 @SuppressWarnings("unused")
-public class ESRIShapeFileReader {
+public class ESRIShapeFileParser {
 
     public static final Shape DUMMY_SHAPE = new PointImpl(0, 0);
 

@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.elasticsearch.cluster.ClusterService;
 import org.elasticsearch.common.Nullable;
-import org.elasticsearch.common.geo.ShapeService;
+import org.elasticsearch.shape.ShapeService;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.query.*;

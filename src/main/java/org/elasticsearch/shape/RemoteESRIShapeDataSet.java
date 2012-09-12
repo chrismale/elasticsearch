@@ -1,4 +1,4 @@
-package org.elasticsearch.common.geo;
+package org.elasticsearch.shape;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
@@ -6,6 +6,7 @@ import com.spatial4j.core.shape.Shape;
 import org.elasticsearch.ElasticSearchIllegalArgumentException;
 import org.elasticsearch.ElasticSearchIllegalStateException;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.shape.parsers.ESRIShapeFileParser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -58,12 +59,12 @@ public class RemoteESRIShapeDataSet implements ShapeDataSet {
                 String name = zipEntry.getName();
 
                 if (name.endsWith(".shp")) {
-                    shapes = ESRIShapeFileReader.parseShpFile(ByteBuffer.wrap(ByteStreams.toByteArray(zipInputStream)));
+                    shapes = ESRIShapeFileParser.parseShpFile(ByteBuffer.wrap(ByteStreams.toByteArray(zipInputStream)));
                 } else if (name.endsWith(".dbf")) {
                     // For some reason javadbf fails when reading directly from the ZIPInputStream
                     // But works when read from a ByteArrayInputStream.
                     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(ByteStreams.toByteArray(zipInputStream));
-                    shapeMetadata = ESRIShapeFileReader.parseDBFFile(byteArrayInputStream);
+                    shapeMetadata = ESRIShapeFileParser.parseDBFFile(byteArrayInputStream);
                 }
 
                 zipInputStream.closeEntry();

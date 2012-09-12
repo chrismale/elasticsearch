@@ -10,16 +10,16 @@ import java.io.IOException;
 
 import static org.elasticsearch.rest.action.support.RestXContentBuilder.restContentBuilder;
 
-public class RestShapeDataSetAction extends BaseRestHandler {
+public class RestShapeDataSetIndexAction extends BaseRestHandler {
 
     private final ShapeService shapeService;
 
     @Inject
-    public RestShapeDataSetAction(Settings settings, Client client, RestController restController, ShapeService shapeService) {
+    public RestShapeDataSetIndexAction(Settings settings, Client client, RestController restController, ShapeService shapeService) {
         super(settings, client);
         this.shapeService = shapeService;
         // TODO Terrible name, decide on something better.  _shape is used as the index to store the shapes in
-        restController.registerHandler(RestRequest.Method.GET, "/_shapedataset/", this);
+        restController.registerHandler(RestRequest.Method.GET, "/_shapedataset/index/", this);
     }
 
     public void handleRequest(final RestRequest request, final RestChannel channel) {
@@ -34,7 +34,11 @@ public class RestShapeDataSetAction extends BaseRestHandler {
                         .endObject();
                 channel.sendResponse(new XContentRestResponse(request, RestStatus.NOT_FOUND, builder));
             } catch (IOException ioe) {
-                logger.error("Failed to send error", ioe);
+                try {
+                    channel.sendResponse(new XContentThrowableRestResponse(request, ioe));
+                } catch (IOException e) {
+                    logger.error("Failed to send error", e);
+                }
             }
         }
 

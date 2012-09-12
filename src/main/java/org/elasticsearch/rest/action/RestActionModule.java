@@ -20,7 +20,7 @@
 package org.elasticsearch.rest.action;
 
 import com.google.common.collect.Lists;
-import org.elasticsearch.shape.RestShapeDataSetAction;
+import org.elasticsearch.shape.RestShapeDataSetIndexAction;
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.action.admin.cluster.health.RestClusterHealthAction;
@@ -76,6 +76,7 @@ import org.elasticsearch.rest.action.search.RestMultiSearchAction;
 import org.elasticsearch.rest.action.search.RestSearchAction;
 import org.elasticsearch.rest.action.search.RestSearchScrollAction;
 import org.elasticsearch.rest.action.update.RestUpdateAction;
+import org.elasticsearch.shape.RestShapeDataSetListAction;
 
 import java.util.List;
 
@@ -161,6 +162,7 @@ public class RestActionModule extends AbstractModule {
 
         bind(RestMoreLikeThisAction.class).asEagerSingleton();
 
-        bind(RestShapeDataSetAction.class).asEagerSingleton();
+        bind(RestShapeDataSetIndexAction.class).asEagerSingleton();
+        bind(RestShapeDataSetListAction.class).asEagerSingleton();
     }
 }

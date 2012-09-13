@@ -19,7 +19,7 @@ public class RestShapeDataSetListAction extends BaseRestHandler {
         super(settings, client);
         this.shapeService = shapeService;
         // TODO Terrible name, decide on something better.  _shape is used as the index to store the shapes in
-        restController.registerHandler(RestRequest.Method.GET, "/_shapedataset/list/", this);
+        restController.registerHandler(RestRequest.Method.GET, "/_shapedataset/list", this);
     }
 
     @Override
@@ -27,18 +27,22 @@ public class RestShapeDataSetListAction extends BaseRestHandler {
         try {
             XContentBuilder builder = restContentBuilder(request)
                     .startObject()
-                        .startArray("dataset_ids");
+                        .startArray("data_set_ids");
             for (ShapeDataSet dataSet : shapeService.dataSets()) {
                 builder.value(dataSet.id());
             }
             builder.endArray().endObject();
             channel.sendResponse(new XContentRestResponse(request, RestStatus.OK, builder));
         } catch (IOException ioe) {
-            try {
-                channel.sendResponse(new XContentThrowableRestResponse(request, ioe));
-            } catch (IOException e) {
-                logger.error("Failed to send error", e);
-            }
+            onFailure(ioe, request, channel);
+        }
+    }
+
+    private void onFailure(Exception e, RestRequest request, RestChannel channel) {
+        try {
+            channel.sendResponse(new XContentThrowableRestResponse(request, e));
+        } catch (IOException ioe) {
+            logger.error("Failed to send error", ioe);
         }
     }
 }

@@ -331,7 +331,7 @@ public class ESRIShapeFileParser {
 
         for (int i = 0; i < numFields; i++) {
             DBFField field = reader.getField(i);
-            fieldNames.add(field.getName());
+            fieldNames.add(field.getName().trim());
         }
 
         List<Map<String, Object>> records = new ArrayList<Map<String, Object>>();

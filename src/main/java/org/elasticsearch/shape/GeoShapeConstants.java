@@ -13,5 +13,5 @@ public interface GeoShapeConstants {
 
     public static ShapeDataSet NATURAL_EARTH_DATA_COUNTRIES = new RemoteESRIShapeDataSet("natural_earth_data_cities",
             "http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/110m-admin-0-countries.zip",
-            "name");
+            "NAME");
 }

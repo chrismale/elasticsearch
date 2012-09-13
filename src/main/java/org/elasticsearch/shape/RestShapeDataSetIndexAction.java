@@ -19,51 +19,52 @@ public class RestShapeDataSetIndexAction extends BaseRestHandler {
         super(settings, client);
         this.shapeService = shapeService;
         // TODO Terrible name, decide on something better.  _shape is used as the index to store the shapes in
-        restController.registerHandler(RestRequest.Method.GET, "/_shapedataset/index/", this);
+        restController.registerHandler(RestRequest.Method.GET, "/_shapedataset/index", this);
     }
 
     public void handleRequest(final RestRequest request, final RestChannel channel) {
-        String dataSetId = request.param(Fields.DATASET_ID);
-        ShapeDataSet dataSet = shapeService.dataSet(dataSetId);
+        try {
+            String dataSetId = request.param(Fields.DATASET_ID);
+            ShapeDataSet dataSet = shapeService.dataSet(dataSetId);
 
-        if (dataSet == null) {
-            try {
+            if (dataSet == null) {
                 XContentBuilder builder = restContentBuilder(request)
                         .startObject()
-                            .field(Fields.RESULT, "ShapeDataSet with ID [" + dataSetId + "] not found")
+                            .value("ShapeDataSet with ID [" + dataSetId + "] not found")
                         .endObject();
                 channel.sendResponse(new XContentRestResponse(request, RestStatus.NOT_FOUND, builder));
-            } catch (IOException ioe) {
-                try {
-                    channel.sendResponse(new XContentThrowableRestResponse(request, ioe));
-                } catch (IOException e) {
-                    logger.error("Failed to send error", e);
-                }
             }
-        }
 
-        String type = request.param(Fields.TYPE);
-        // TODO Validate that type value is present.  Is there some way to automate this?
+            String type = request.param(Fields.TYPE);
+            if (type == null) {
+                XContentBuilder builder = restContentBuilder(request)
+                        .startObject()
+                            .value("type missing")
+                        .endObject();
+                channel.sendResponse(new XContentRestResponse(request, RestStatus.BAD_REQUEST, builder));
+            }
 
-        try {
             shapeService.index(dataSet, type);
             XContentBuilder builder = restContentBuilder(request)
                     .startObject()
-                        .field(Fields.RESULT, "ShapeDataSet [" + dataSetId + "] indexed")
+                        .value("ShapeDataSet [" + dataSetId + "] indexed")
                     .endObject();
             channel.sendResponse(new XContentRestResponse(request, RestStatus.OK, builder));
         } catch (IOException ioe) {
-            try {
-                channel.sendResponse(new XContentThrowableRestResponse(request, ioe));
-            } catch (IOException e) {
-                logger.error("Failed to send error", e);
-            }
+            onFailure(ioe, request, channel);
+        }
+    }
+
+    private void onFailure(Exception e, RestRequest request, RestChannel channel) {
+        try {
+            channel.sendResponse(new XContentThrowableRestResponse(request, e));
+        } catch (IOException ioe) {
+            logger.error("Failed to send error", ioe);
         }
     }
 
     private static interface Fields {
-        String DATASET_ID = "dataSetId";
+        String DATASET_ID = "data_set_id";
         String TYPE = "type";
-        String RESULT = "result";
     }
 }

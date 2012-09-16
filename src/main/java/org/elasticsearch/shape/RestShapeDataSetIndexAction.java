@@ -30,7 +30,7 @@ public class RestShapeDataSetIndexAction extends BaseRestHandler {
             if (dataSet == null) {
                 XContentBuilder builder = restContentBuilder(request)
                         .startObject()
-                            .value("ShapeDataSet with ID [" + dataSetId + "] not found")
+                            .field(Fields.RESULT, "ShapeDataSet with ID [" + dataSetId + "] not found")
                         .endObject();
                 channel.sendResponse(new XContentRestResponse(request, RestStatus.NOT_FOUND, builder));
             }
@@ -39,15 +39,15 @@ public class RestShapeDataSetIndexAction extends BaseRestHandler {
             if (type == null) {
                 XContentBuilder builder = restContentBuilder(request)
                         .startObject()
-                            .value("type missing")
+                            .field(Fields.RESULT, "type missing")
                         .endObject();
                 channel.sendResponse(new XContentRestResponse(request, RestStatus.BAD_REQUEST, builder));
             }
 
-            shapeService.index(dataSet, type);
+            int shapeCount = shapeService.index(dataSet, type);
             XContentBuilder builder = restContentBuilder(request)
                     .startObject()
-                        .value("ShapeDataSet [" + dataSetId + "] indexed")
+                        .field(Fields.RESULT, shapeCount + " shapes indexed")
                     .endObject();
             channel.sendResponse(new XContentRestResponse(request, RestStatus.OK, builder));
         } catch (IOException ioe) {
@@ -64,6 +64,7 @@ public class RestShapeDataSetIndexAction extends BaseRestHandler {
     }
 
     private static interface Fields {
+        String RESULT = "result";
         String DATASET_ID = "data_set_id";
         String TYPE = "type";
     }

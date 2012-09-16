@@ -27,7 +27,7 @@ import java.util.*;
 public class ShapeService extends AbstractComponent {
 
     // TODO: Make this configurable?
-    public static final String INDEX_NAME = "_shape";
+    public static final String INDEX_NAME = "shape";
 
     private final List<ShapeDataSet> dataSets = new ArrayList<ShapeDataSet>();
     private final Map<String, ShapeDataSet> dataSetsById = new HashMap<String, ShapeDataSet>();
@@ -55,8 +55,7 @@ public class ShapeService extends AbstractComponent {
         return dataSetsById.get(id);
     }
 
-    public void index(ShapeDataSet dataSet, String type) throws IOException {
-        // TODO: What does CreateIndex do if the index already exists?
+    public int index(ShapeDataSet dataSet, String type) throws IOException {
         client.admin().indices().create(new CreateIndexRequest(INDEX_NAME));
 
         List<Map<String, Object>> shapeData = dataSet.shapeData();
@@ -74,7 +73,7 @@ public class ShapeService extends AbstractComponent {
             // TODO Consider embedding properties in a named object
             // Cannot use XContentBuilder.map since it starts and ends an object
             for (Map.Entry<String, Object> entry : data.entrySet()) {
-                contentBuilder.field(entry.toString(), entry.getValue());
+                contentBuilder.field(entry.getKey(), entry.getValue());
             }
 
             contentBuilder.startObject("shape");
@@ -102,13 +101,15 @@ public class ShapeService extends AbstractComponent {
             // TODO: What to do?
             throw new ElasticSearchIllegalStateException();
         }
+
+        return shapeData.size();
     }
 
     public Shape shape(String name, String type) throws IOException {
         GetResponse response = client.prepareGet(INDEX_NAME, type, name).execute().actionGet();
         XContentParser parser = JsonXContent.jsonXContent.createParser(response.source());
         XContentParser.Token currentToken;
-        while ((currentToken = parser.currentToken()) != XContentParser.Token.END_OBJECT) {
+        while ((currentToken = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
             if (currentToken == XContentParser.Token.FIELD_NAME) {
                 if ("shape".equals(parser.currentName())) {
                     parser.nextToken();

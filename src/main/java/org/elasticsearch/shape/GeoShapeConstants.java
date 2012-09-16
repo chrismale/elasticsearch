@@ -2,7 +2,15 @@ package org.elasticsearch.shape;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.distance.DistanceUnits;
+import com.spatial4j.core.shape.Shape;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public interface GeoShapeConstants {
 
@@ -11,7 +19,7 @@ public interface GeoShapeConstants {
     // TODO: Unsure if the units actually matter since we dont do distance calculations
     public final JtsSpatialContext SPATIAL_CONTEXT = new JtsSpatialContext(DistanceUnits.KILOMETERS);
 
-    public static ShapeDataSet NATURAL_EARTH_DATA_COUNTRIES = new RemoteESRIShapeDataSet("natural_earth_data_cities",
+    public final ShapeDataSet NATURAL_EARTH_DATA_COUNTRIES = new RemoteESRIShapeDataSet("natural_earth_data_cities",
             "http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/110m-admin-0-countries.zip",
             "NAME");
 }

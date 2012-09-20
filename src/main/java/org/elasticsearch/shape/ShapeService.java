@@ -1,6 +1,7 @@
 package org.elasticsearch.shape;
 
 import com.spatial4j.core.shape.Shape;
+import org.elasticsearch.ElasticSearchIllegalArgumentException;
 import org.elasticsearch.ElasticSearchIllegalStateException;
 import org.elasticsearch.ElasticSearchParseException;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -66,7 +67,7 @@ public class ShapeService extends AbstractComponent {
 
         for (Map<String, Object> data : shapeData) {
             // TODO: Consider excluding DUMMY_SHAPE shapes
-            Shape shape = (Shape) data.remove("shape");
+            Shape shape = (Shape) data.remove(Fields.SHAPE);
 
             XContentBuilder contentBuilder = XContentFactory.jsonBuilder().startObject();
 
@@ -76,13 +77,13 @@ public class ShapeService extends AbstractComponent {
                 contentBuilder.field(entry.getKey(), entry.getValue());
             }
 
-            contentBuilder.startObject("shape");
+            contentBuilder.startObject(Fields.SHAPE);
             GeoJSONShapeSerializer.serialize(shape, contentBuilder);
             contentBuilder.endObject();
 
-            contentBuilder.startObject("metadata")
-                    .field("dataset_id", dataSet.id())
-                    .field("insert_date", insertDate);
+            contentBuilder.startObject(Fields.METADATA)
+                    .field(Fields.DATASET_ID, dataSet.id())
+                    .field(Fields.INSERT_DATE, insertDate);
             dataSet.addMetadata(contentBuilder);
             contentBuilder.endObject();
 
@@ -98,8 +99,7 @@ public class ShapeService extends AbstractComponent {
 
         BulkResponse response = bulkRequestBuilder.execute().actionGet();
         if (response.hasFailures()) {
-            // TODO: What to do?
-            throw new ElasticSearchIllegalStateException();
+            throw new ElasticSearchIllegalStateException(response.buildFailureMessage());
         }
 
         return shapeData.size();
@@ -107,16 +107,27 @@ public class ShapeService extends AbstractComponent {
 
     public Shape shape(String name, String type) throws IOException {
         GetResponse response = client.prepareGet(INDEX_NAME, type, name).execute().actionGet();
+        if (!response.exists()) {
+            throw new ElasticSearchIllegalArgumentException("Shape with name [" + name + "] in type [" + type + "] not found");
+        }
+
         XContentParser parser = JsonXContent.jsonXContent.createParser(response.source());
         XContentParser.Token currentToken;
         while ((currentToken = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
             if (currentToken == XContentParser.Token.FIELD_NAME) {
-                if ("shape".equals(parser.currentName())) {
+                if (Fields.SHAPE.equals(parser.currentName())) {
                     parser.nextToken();
                     return GeoJSONShapeParser.parse(parser);
                 }
             }
         }
-        return null;
+        throw new ElasticSearchIllegalStateException("Shape with name [" + name + "] found but missing " + Fields.SHAPE + " field");
+    }
+
+    public static interface Fields {
+        public final String SHAPE = "shape";
+        public final String METADATA = "metadata";
+        public final String DATASET_ID = "data_set_id";
+        public final String INSERT_DATE = "insert_date";
     }
 }

@@ -11,11 +11,14 @@ import java.util.Map;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
-public class RemoteShapeDataSetTests {
+/**
+ * Tests for {@link RemoteESRIShapeDataSet}
+ */
+public class RemoteESRIShapeDataSetTests {
 
     @Test
     public void testShapeData() throws IOException {
-        String filePath = RemoteShapeDataSetTests.class.getResource(
+        String filePath = RemoteESRIShapeDataSetTests.class.getResource(
                 "/org/elasticsearch/test/unit/shape/test.zip").getFile();
         RemoteESRIShapeDataSet testDataSet = new RemoteESRIShapeDataSet(
                 "test_data_set", "file://" + filePath, "name");

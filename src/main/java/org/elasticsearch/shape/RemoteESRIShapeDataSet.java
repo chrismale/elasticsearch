@@ -21,6 +21,9 @@ import java.util.zip.ZipInputStream;
 
 public class RemoteESRIShapeDataSet implements ShapeDataSet {
 
+    private final String SHP_SUFFIX = ".shp";
+    private final String DBF_SUFFIX = ".dbf";
+
     private final String id;
     private final URL url;
     private final String nameField;
@@ -29,6 +32,7 @@ public class RemoteESRIShapeDataSet implements ShapeDataSet {
         this.id = id;
         this.nameField = nameField;
         try {
+            // Construct it ourselves so that fields don't have to catch exception
             this.url = new URL(url);
         } catch (MalformedURLException mue) {
             throw new ElasticSearchIllegalArgumentException("Invalid URL for data set", mue);
@@ -58,9 +62,9 @@ public class RemoteESRIShapeDataSet implements ShapeDataSet {
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
                 String name = zipEntry.getName();
 
-                if (name.endsWith(".shp")) {
+                if (name.endsWith(SHP_SUFFIX)) {
                     shapes = ESRIShapeFileParser.parseShpFile(ByteBuffer.wrap(ByteStreams.toByteArray(zipInputStream)));
-                } else if (name.endsWith(".dbf")) {
+                } else if (name.endsWith(DBF_SUFFIX)) {
                     // For some reason javadbf fails when reading directly from the ZIPInputStream
                     // But works when read from a ByteArrayInputStream.
                     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(ByteStreams.toByteArray(zipInputStream));
@@ -77,7 +81,7 @@ public class RemoteESRIShapeDataSet implements ShapeDataSet {
             }
 
             for (int i = 0; i < shapes.size(); i++) {
-                shapeMetadata.get(i).put("shape", shapes.get(i));
+                shapeMetadata.get(i).put(ShapeService.Fields.SHAPE, shapes.get(i));
             }
 
             return shapeMetadata;

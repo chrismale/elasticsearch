@@ -105,10 +105,6 @@ public class GeoShapeFilterParser implements FilterParser {
                                 throw new QueryParsingException(parseContext.index(), "Named Shape name or type missing");
                             }
                             shape = shapeService.shape(name, type);
-                            if (shape == null) {
-                                throw new QueryParsingException(parseContext.index(),
-                                        "Shape with name [" + name + "] in type [" + type + "] not found");
-                            }
                         }
                     }
                 }

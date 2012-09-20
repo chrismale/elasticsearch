@@ -57,8 +57,6 @@ public class ShapeService extends AbstractComponent {
     }
 
     public int index(ShapeDataSet dataSet, String type) throws IOException {
-        client.admin().indices().create(new CreateIndexRequest(INDEX_NAME));
-
         List<Map<String, Object>> shapeData = dataSet.shapeData();
 
         Date insertDate = new Date();
@@ -106,7 +104,7 @@ public class ShapeService extends AbstractComponent {
     }
 
     public Shape shape(String name, String type) throws IOException {
-        GetResponse response = client.prepareGet(INDEX_NAME, type, name).execute().actionGet();
+        GetResponse response = client.prepareGet(INDEX_NAME, type, name).setPreference("_local").execute().actionGet();
         if (!response.exists()) {
             throw new ElasticSearchIllegalArgumentException("Shape with name [" + name + "] in type [" + type + "] not found");
         }

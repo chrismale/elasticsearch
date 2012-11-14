@@ -55,6 +55,12 @@ public class TypeParsers {
                 builder.ignoreMalformed(nodeBooleanValue(propNode));
             } else if (propName.equals("omit_norms")) {
                 builder.omitNorms(nodeBooleanValue(propNode));
+            } else if (propName.equals("index_similarity")) {
+                builder.indexSimilarity(parserContext.similarityLookupService().similarity(propNode.toString()));
+            } else if (propName.equals("search_similarity")) {
+                builder.searchSimilarity(parserContext.similarityLookupService().similarity(propNode.toString()));
+            } else if (propName.equals("similarity")) {
+                builder.similarity(parserContext.similarityLookupService().similarity(propNode.toString()));
             }
         }
     }
@@ -111,6 +117,12 @@ public class TypeParsers {
                 builder.searchAnalyzer(analyzer);
             } else if (propName.equals("include_in_all")) {
                 builder.includeInAll(nodeBooleanValue(propNode));
+            } else if (propName.equals("index_similarity")) {
+                builder.indexSimilarity(parserContext.similarityLookupService().similarity(propNode.toString()));
+            } else if (propName.equals("search_similarity")) {
+                builder.searchSimilarity(parserContext.similarityLookupService().similarity(propNode.toString()));
+            } else if (propName.equals("similarity")) {
+                builder.similarity(parserContext.similarityLookupService().similarity(propNode.toString()));
             }
         }
     }

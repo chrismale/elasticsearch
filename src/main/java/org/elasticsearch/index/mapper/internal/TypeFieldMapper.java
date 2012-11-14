@@ -35,6 +35,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.mapper.*;
 import org.elasticsearch.index.mapper.core.AbstractFieldMapper;
 import org.elasticsearch.index.query.QueryParseContext;
+import org.elasticsearch.index.similarity.NamedSimilarity;
 
 import java.io.IOException;
 import java.util.Map;
@@ -78,7 +79,7 @@ public class TypeFieldMapper extends AbstractFieldMapper<String> implements Inte
 
         @Override
         public TypeFieldMapper build(BuilderContext context) {
-            return new TypeFieldMapper(name, indexName, boost, fieldType);
+            return new TypeFieldMapper(name, indexName, boost, fieldType, indexSimilarity, searchSimilarity);
         }
     }
 
@@ -97,12 +98,12 @@ public class TypeFieldMapper extends AbstractFieldMapper<String> implements Inte
     }
 
     protected TypeFieldMapper(String name, String indexName) {
-        this(name, indexName, Defaults.BOOST, new FieldType(Defaults.TYPE_FIELD_TYPE));
+        this(name, indexName, Defaults.BOOST, new FieldType(Defaults.TYPE_FIELD_TYPE), null, null);
     }
 
-    public TypeFieldMapper(String name, String indexName, float boost, FieldType fieldType) {
+    public TypeFieldMapper(String name, String indexName, float boost, FieldType fieldType, NamedSimilarity indexSimilarity, NamedSimilarity searchSimilarity) {
         super(new Names(name, indexName, indexName, name), boost, fieldType, Lucene.KEYWORD_ANALYZER,
-                Lucene.KEYWORD_ANALYZER);
+                Lucene.KEYWORD_ANALYZER, indexSimilarity, searchSimilarity);
     }
 
     public String value(Document document) {

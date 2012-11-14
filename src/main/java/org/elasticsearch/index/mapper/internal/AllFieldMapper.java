@@ -35,6 +35,7 @@ import org.elasticsearch.index.analysis.NamedAnalyzer;
 import org.elasticsearch.index.mapper.*;
 import org.elasticsearch.index.mapper.core.AbstractFieldMapper;
 import org.elasticsearch.index.query.QueryParseContext;
+import org.elasticsearch.index.similarity.NamedSimilarity;
 
 import java.io.IOException;
 import java.util.Map;
@@ -98,7 +99,7 @@ public class AllFieldMapper extends AbstractFieldMapper<Void> implements Interna
             fieldType.setTokenized(true);
 
             return new AllFieldMapper(name, fieldType,
-                    indexAnalyzer, searchAnalyzer, enabled, autoBoost);
+                    indexAnalyzer, searchAnalyzer, indexSimilarity, searchSimilarity, enabled, autoBoost);
         }
     }
 
@@ -130,15 +131,15 @@ public class AllFieldMapper extends AbstractFieldMapper<Void> implements Interna
     private volatile boolean autoBoost;
 
     public AllFieldMapper() {
-        this(Defaults.NAME, new FieldType(Defaults.ALL_FIELD_TYPE), null, null, Defaults.ENABLED, false);
+        this(Defaults.NAME, new FieldType(Defaults.ALL_FIELD_TYPE), null, null, null, null, Defaults.ENABLED, false);
     }
 
     protected AllFieldMapper(String name, FieldType fieldType,
-                             NamedAnalyzer indexAnalyzer, NamedAnalyzer searchAnalyzer, boolean enabled, boolean autoBoost) {
-        super(new Names(name, name, name, name), 1.0f, fieldType, indexAnalyzer, searchAnalyzer);
+                             NamedAnalyzer indexAnalyzer, NamedAnalyzer searchAnalyzer, NamedSimilarity indexSimilarity,
+                             NamedSimilarity searchSimilarity, boolean enabled, boolean autoBoost) {
+        super(new Names(name, name, name, name), 1.0f, fieldType, indexAnalyzer, searchAnalyzer, indexSimilarity, searchSimilarity);
         this.enabled = enabled;
         this.autoBoost = autoBoost;
-
     }
 
     public boolean enabled() {

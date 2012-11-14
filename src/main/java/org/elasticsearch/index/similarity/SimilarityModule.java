@@ -19,10 +19,13 @@
 
 package org.elasticsearch.index.similarity;
 
+import com.google.common.collect.Maps;
+import org.apache.lucene.search.similarities.*;
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.inject.Scopes;
 import org.elasticsearch.common.inject.assistedinject.FactoryProvider;
 import org.elasticsearch.common.inject.multibindings.MapBinder;
+import org.elasticsearch.common.inject.name.Names;
 import org.elasticsearch.common.settings.Settings;
 
 import java.util.Map;
@@ -34,27 +37,39 @@ public class SimilarityModule extends AbstractModule {
 
     private final Settings settings;
 
+    private final Map<String, Class<? extends Similarity>> similarities = Maps.newHashMap();
+
     public SimilarityModule(Settings settings) {
         this.settings = settings;
+
+        addSimilarity("tfidf", DefaultSimilarity.class);
+        addSimilarity("bm25", BM25Similarity.class);
+        addSimilarity("ib", IBSimilarity.class);
+        addSimilarity("dfr", DFRSimilarity.class);
+        addSimilarity("lmdirichlet", LMDirichletSimilarity.class);
+        addSimilarity("lmjelinekmercer", LMJelinekMercerSimilarity.class);
+    }
+
+    public void addSimilarity(String name, Class<? extends Similarity> similarity) {
+        similarities.put(name, similarity);
     }
 
     @Override
     protected void configure() {
-        MapBinder<String, SimilarityProviderFactory> similarityBinder
-                = MapBinder.newMapBinder(binder(), String.class, SimilarityProviderFactory.class);
+        MapBinder<String, Similarity> similarityBinder = MapBinder.newMapBinder(binder(), String.class, Similarity.class);
 
-        Map<String, Settings> similarityProvidersSettings = settings.getGroups("index.similarity");
-        for (Map.Entry<String, Settings> entry : similarityProvidersSettings.entrySet()) {
-            String name = entry.getKey();
-            Settings settings = entry.getValue();
+        for (Map.Entry<String, Class<? extends Similarity>> entry : similarities.entrySet()) {
+            String similarityName = entry.getKey();
+            Class<? extends Similarity> similarityClass = entry.getValue();
 
-            Class<? extends SimilarityProvider> type = settings.getAsClass("type", null, "org.elasticsearch.index.similarity.", "SimilarityProvider");
-            if (type == null) {
-                throw new IllegalArgumentException("Similarity [" + name + "] must have a type associated with it");
-            }
-            similarityBinder.addBinding(name).toProvider(FactoryProvider.newFactory(SimilarityProviderFactory.class, type)).in(Scopes.SINGLETON);
+            similarityBinder.addBinding(similarityName).to(similarityClass).in(Scopes.SINGLETON);
         }
 
+        bind(SimilarityLookupService.class).in(Scopes.SINGLETON);
+
+        // TODO: Make defaults configurable
+        bind(Similarity.class).annotatedWith(Names.named("default_index")).to(DefaultSimilarity.class);
+        bind(Similarity.class).annotatedWith(Names.named("default_search")).to(DefaultSimilarity.class);
         bind(SimilarityService.class).in(Scopes.SINGLETON);
     }
 }

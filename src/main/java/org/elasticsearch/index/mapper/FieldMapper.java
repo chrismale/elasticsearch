@@ -26,6 +26,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.MultiTermQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.similarities.Similarity;
 import org.elasticsearch.common.Nullable;
 import org.elasticsearch.index.field.data.FieldDataType;
 import org.elasticsearch.index.query.QueryParseContext;
@@ -155,6 +156,10 @@ public interface FieldMapper<T> {
      * The analyzer that will be used for quoted search on the field.
      */
     Analyzer searchQuoteAnalyzer();
+
+    Similarity indexSimilarity();
+
+    Similarity searchSimilarity();
 
     /**
      * Returns the value that will be used as a result for search. Can be only of specific types... .

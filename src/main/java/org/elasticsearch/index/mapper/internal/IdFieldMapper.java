@@ -37,6 +37,7 @@ import org.elasticsearch.index.mapper.*;
 import org.elasticsearch.index.mapper.core.AbstractFieldMapper;
 import org.elasticsearch.index.query.QueryParseContext;
 import org.elasticsearch.index.search.UidFilter;
+import org.elasticsearch.index.similarity.NamedSimilarity;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -87,7 +88,7 @@ public class IdFieldMapper extends AbstractFieldMapper<String> implements Intern
 
         @Override
         public IdFieldMapper build(BuilderContext context) {
-            return new IdFieldMapper(name, indexName, boost, fieldType, path);
+            return new IdFieldMapper(name, indexName, boost, fieldType, path, indexSimilarity, searchSimilarity);
         }
     }
 
@@ -118,12 +119,13 @@ public class IdFieldMapper extends AbstractFieldMapper<String> implements Intern
     }
 
     protected IdFieldMapper(String name, String indexName, FieldType fieldType) {
-        this(name, indexName, Defaults.BOOST, fieldType, Defaults.PATH);
+        this(name, indexName, Defaults.BOOST, fieldType, Defaults.PATH, null, null);
     }
 
-    protected IdFieldMapper(String name, String indexName, float boost, FieldType fieldType, String path) {
+    protected IdFieldMapper(String name, String indexName, float boost, FieldType fieldType, String path,
+                            NamedSimilarity indexSimilarity, NamedSimilarity searchSimilarity) {
         super(new Names(name, indexName, indexName, name), boost, fieldType, Lucene.KEYWORD_ANALYZER,
-                Lucene.KEYWORD_ANALYZER);
+                Lucene.KEYWORD_ANALYZER, indexSimilarity, searchSimilarity);
         this.path = path;
     }
 

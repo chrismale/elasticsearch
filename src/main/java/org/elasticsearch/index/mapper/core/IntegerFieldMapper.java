@@ -42,6 +42,7 @@ import org.elasticsearch.index.field.data.FieldDataType;
 import org.elasticsearch.index.mapper.*;
 import org.elasticsearch.index.query.QueryParseContext;
 import org.elasticsearch.index.search.NumericRangeFieldDataFilter;
+import org.elasticsearch.index.similarity.NamedSimilarity;
 
 import java.io.IOException;
 import java.util.Map;
@@ -86,7 +87,7 @@ public class IntegerFieldMapper extends NumberFieldMapper<Integer> {
             fieldType.setOmitNorms(fieldType.omitNorms() && boost == 1.0f);
             IntegerFieldMapper fieldMapper = new IntegerFieldMapper(buildNames(context),
                     precisionStep, fuzzyFactor, boost, fieldType,
-                    nullValue, ignoreMalformed(context));
+                    nullValue, ignoreMalformed(context), indexSimilarity, searchSimilarity);
             fieldMapper.includeInAll(includeInAll);
             return fieldMapper;
         }
@@ -114,10 +115,10 @@ public class IntegerFieldMapper extends NumberFieldMapper<Integer> {
 
     protected IntegerFieldMapper(Names names, int precisionStep, String fuzzyFactor,
                                  float boost, FieldType fieldType,
-                                 Integer nullValue, Explicit<Boolean> ignoreMalformed) {
+                                 Integer nullValue, Explicit<Boolean> ignoreMalformed, NamedSimilarity indexSimilarity, NamedSimilarity searchSimilarity) {
         super(names, precisionStep, fuzzyFactor, boost, fieldType,
                 ignoreMalformed, new NamedAnalyzer("_int/" + precisionStep, new NumericIntegerAnalyzer(precisionStep)),
-                new NamedAnalyzer("_int/max", new NumericIntegerAnalyzer(Integer.MAX_VALUE)));
+                new NamedAnalyzer("_int/max", new NumericIntegerAnalyzer(Integer.MAX_VALUE)), indexSimilarity, searchSimilarity);
         this.nullValue = nullValue;
         this.nullValueAsString = nullValue == null ? null : nullValue.toString();
     }

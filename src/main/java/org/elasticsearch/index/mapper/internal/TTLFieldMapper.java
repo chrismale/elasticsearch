@@ -117,7 +117,7 @@ public class TTLFieldMapper extends LongFieldMapper implements InternalMapper, R
     protected TTLFieldMapper(FieldType fieldType, boolean enabled, long defaultTTL, Explicit<Boolean> ignoreMalformed) {
         super(new Names(Defaults.NAME, Defaults.NAME, Defaults.NAME, Defaults.NAME), Defaults.PRECISION_STEP,
                 Defaults.FUZZY_FACTOR, Defaults.BOOST, fieldType,
-                Defaults.NULL_VALUE, ignoreMalformed);
+                Defaults.NULL_VALUE, ignoreMalformed, null, null);
         this.enabled = enabled;
         this.defaultTTL = defaultTTL;
     }

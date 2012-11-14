@@ -25,6 +25,7 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.FieldInfo.IndexOptions;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
+import org.apache.lucene.search.similarities.Similarity;
 import org.apache.lucene.util.BytesRef;
 import org.elasticsearch.ElasticSearchIllegalArgumentException;
 import org.elasticsearch.common.Nullable;
@@ -35,6 +36,7 @@ import org.elasticsearch.index.analysis.NamedAnalyzer;
 import org.elasticsearch.index.field.data.FieldDataType;
 import org.elasticsearch.index.mapper.*;
 import org.elasticsearch.index.query.QueryParseContext;
+import org.elasticsearch.index.similarity.NamedSimilarity;
 
 import java.io.IOException;
 
@@ -129,6 +131,21 @@ public abstract class AbstractFieldMapper<T> implements FieldMapper<T>, Mapper {
         public T searchAnalyzer(NamedAnalyzer searchAnalyzer) {
             return super.searchAnalyzer(searchAnalyzer);
         }
+
+        @Override
+        public T indexSimilarity(NamedSimilarity similarity) {
+            return super.indexSimilarity(similarity);
+        }
+
+        @Override
+        public T searchSimilarity(NamedSimilarity similarity) {
+            return super.searchSimilarity(similarity);
+        }
+
+        @Override
+        public T similarity(NamedSimilarity similarity) {
+            return super.similarity(similarity);
+        }
     }
 
     public abstract static class Builder<T extends Builder, Y extends AbstractFieldMapper> extends Mapper.Builder<T, Y> {
@@ -141,6 +158,8 @@ public abstract class AbstractFieldMapper<T> implements FieldMapper<T>, Mapper {
         protected NamedAnalyzer searchAnalyzer;
         protected Boolean includeInAll;
         protected boolean indexOptionsSet = false;
+        protected NamedSimilarity indexSimilarity;
+        protected NamedSimilarity searchSimilarity;
 
         protected Builder(String name, FieldType fieldType) {
             super(name);
@@ -217,6 +236,22 @@ public abstract class AbstractFieldMapper<T> implements FieldMapper<T>, Mapper {
             return builder;
         }
 
+        protected T indexSimilarity(NamedSimilarity similarity) {
+            this.indexSimilarity = similarity;
+            return builder;
+        }
+
+        protected T searchSimilarity(NamedSimilarity similarity) {
+            this.searchSimilarity = similarity;
+            return builder;
+        }
+
+        protected T similarity(NamedSimilarity similarity) {
+            this.indexSimilarity = similarity;
+            this.searchSimilarity = similarity;
+            return builder;
+        }
+
         protected T includeInAll(Boolean includeInAll) {
             this.includeInAll = includeInAll;
             return builder;
@@ -246,11 +281,18 @@ public abstract class AbstractFieldMapper<T> implements FieldMapper<T>, Mapper {
 
     protected final NamedAnalyzer searchAnalyzer;
 
-    protected AbstractFieldMapper(Names names, float boost, FieldType fieldType, NamedAnalyzer indexAnalyzer, NamedAnalyzer searchAnalyzer) {
+    protected final NamedSimilarity indexSimilarity;
+
+    protected final NamedSimilarity searchSimilarity;
+
+    protected AbstractFieldMapper(Names names, float boost, FieldType fieldType, NamedAnalyzer indexAnalyzer, NamedAnalyzer searchAnalyzer,
+                                  NamedSimilarity indexSimilarity, NamedSimilarity searchSimilarity) {
         this.names = names;
         this.boost = boost;
         this.fieldType = fieldType;
         this.fieldType.freeze();
+        this.indexSimilarity = indexSimilarity;
+        this.searchSimilarity = searchSimilarity;
 
         // automatically set to keyword analyzer if its indexed and not analyzed
         if (indexAnalyzer == null && !this.fieldType.tokenized() && this.fieldType.indexed()) {
@@ -339,6 +381,16 @@ public abstract class AbstractFieldMapper<T> implements FieldMapper<T>, Mapper {
     @Override
     public Analyzer searchQuoteAnalyzer() {
         return this.searchAnalyzer;
+    }
+
+    @Override
+    public Similarity indexSimilarity() {
+        return indexSimilarity;
+    }
+
+    @Override
+    public Similarity searchSimilarity() {
+        return searchSimilarity;
     }
 
     @Override

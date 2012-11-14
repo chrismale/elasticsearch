@@ -41,6 +41,7 @@ import org.elasticsearch.index.field.data.FieldDataType;
 import org.elasticsearch.index.mapper.*;
 import org.elasticsearch.index.query.QueryParseContext;
 import org.elasticsearch.index.search.NumericRangeFieldDataFilter;
+import org.elasticsearch.index.similarity.NamedSimilarity;
 
 import java.io.IOException;
 import java.util.Map;
@@ -83,7 +84,7 @@ public class ByteFieldMapper extends NumberFieldMapper<Byte> {
         public ByteFieldMapper build(BuilderContext context) {
             fieldType.setOmitNorms(fieldType.omitNorms() && boost == 1.0f);
             ByteFieldMapper fieldMapper = new ByteFieldMapper(buildNames(context),
-                    precisionStep, fuzzyFactor, boost, fieldType, nullValue, ignoreMalformed(context));
+                    precisionStep, fuzzyFactor, boost, fieldType, nullValue, ignoreMalformed(context), indexSimilarity, searchSimilarity);
             fieldMapper.includeInAll(includeInAll);
             return fieldMapper;
         }
@@ -110,10 +111,10 @@ public class ByteFieldMapper extends NumberFieldMapper<Byte> {
     private String nullValueAsString;
 
     protected ByteFieldMapper(Names names, int precisionStep, String fuzzyFactor, float boost, FieldType fieldType,
-                              Byte nullValue, Explicit<Boolean> ignoreMalformed) {
+                              Byte nullValue, Explicit<Boolean> ignoreMalformed, NamedSimilarity indexSimilarity, NamedSimilarity searchSimilarity) {
         super(names, precisionStep, fuzzyFactor, boost, fieldType,
                 ignoreMalformed, new NamedAnalyzer("_byte/" + precisionStep, new NumericIntegerAnalyzer(precisionStep)),
-                new NamedAnalyzer("_byte/max", new NumericIntegerAnalyzer(Integer.MAX_VALUE)));
+                new NamedAnalyzer("_byte/max", new NumericIntegerAnalyzer(Integer.MAX_VALUE)), indexSimilarity, searchSimilarity);
         this.nullValue = nullValue;
         this.nullValueAsString = nullValue == null ? null : nullValue.toString();
     }

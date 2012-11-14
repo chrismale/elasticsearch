@@ -19,81 +19,74 @@
 
 package org.elasticsearch.index.similarity;
 
-import com.google.common.collect.ImmutableMap;
+import org.apache.lucene.search.similarities.DefaultSimilarity;
+import org.apache.lucene.search.similarities.PerFieldSimilarityWrapper;
 import org.apache.lucene.search.similarities.Similarity;
-import org.elasticsearch.common.Nullable;
 import org.elasticsearch.common.inject.Inject;
+import org.elasticsearch.common.inject.name.Named;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.AbstractIndexComponent;
 import org.elasticsearch.index.Index;
+import org.elasticsearch.index.mapper.FieldMapper;
+import org.elasticsearch.index.mapper.MapperService;
 import org.elasticsearch.index.settings.IndexSettings;
-
-import java.util.Map;
-
-import static com.google.common.collect.Maps.newHashMap;
 
 /**
  *
  */
 public class SimilarityService extends AbstractIndexComponent {
 
-    private final ImmutableMap<String, SimilarityProvider> similarityProviders;
+    private final MapperService mapperService;
 
-    private final ImmutableMap<String, Similarity> similarities;
+    private final Similarity defaultIndexSimilarity;
+    private final Similarity defaultSearchSimilarity;
 
-    public SimilarityService(Index index) {
-        this(index, ImmutableSettings.Builder.EMPTY_SETTINGS, null);
+    private final Similarity indexSimilarity;
+    private final Similarity searchSimilarity;
+
+    public SimilarityService(Index index, MapperService mapperService) {
+        this(index, ImmutableSettings.Builder.EMPTY_SETTINGS, new DefaultSimilarity(), new DefaultSimilarity(), mapperService);
     }
 
     @Inject
     public SimilarityService(Index index, @IndexSettings Settings indexSettings,
-                             @Nullable Map<String, SimilarityProviderFactory> providerFactories) {
+                             @Named("default_index") Similarity defaultIndexSimilarity,
+                             @Named("default_search") Similarity defaultSearchSimilarity,
+                             MapperService mapperService) {
         super(index, indexSettings);
+        this.mapperService = mapperService;
 
-        Map<String, SimilarityProvider> similarityProviders = newHashMap();
-        if (providerFactories != null) {
-            Map<String, Settings> providersSettings = indexSettings.getGroups("index.similarity");
-            for (Map.Entry<String, SimilarityProviderFactory> entry : providerFactories.entrySet()) {
-                String similarityName = entry.getKey();
-                SimilarityProviderFactory similarityProviderFactory = entry.getValue();
+        this.defaultIndexSimilarity = defaultIndexSimilarity;
+        this.defaultSearchSimilarity = defaultSearchSimilarity;
 
-                Settings similaritySettings = providersSettings.get(similarityName);
-                if (similaritySettings == null) {
-                    similaritySettings = ImmutableSettings.Builder.EMPTY_SETTINGS;
-                }
-
-                SimilarityProvider similarityProvider = similarityProviderFactory.create(similarityName, similaritySettings);
-                similarityProviders.put(similarityName, similarityProvider);
-            }
-        }
-
-        // add defaults
-        if (!similarityProviders.containsKey("index")) {
-            similarityProviders.put("index", new DefaultSimilarityProvider(index, indexSettings, "index", ImmutableSettings.Builder.EMPTY_SETTINGS));
-        }
-        if (!similarityProviders.containsKey("search")) {
-            similarityProviders.put("search", new DefaultSimilarityProvider(index, indexSettings, "search", ImmutableSettings.Builder.EMPTY_SETTINGS));
-        }
-        this.similarityProviders = ImmutableMap.copyOf(similarityProviders);
-
-
-        Map<String, Similarity> similarities = newHashMap();
-        for (SimilarityProvider provider : similarityProviders.values()) {
-            similarities.put(provider.name(), provider.get());
-        }
-        this.similarities = ImmutableMap.copyOf(similarities);
-    }
-
-    public Similarity similarity(String name) {
-        return similarities.get(name);
+        this.indexSimilarity = new IndexPerFieldSimilarity();
+        this.searchSimilarity = new SearchPerFieldSimilarity();
     }
 
     public Similarity defaultIndexSimilarity() {
-        return similarities.get("index");
+        return indexSimilarity;
     }
 
     public Similarity defaultSearchSimilarity() {
-        return similarities.get("search");
+        return searchSimilarity;
+    }
+
+    private class IndexPerFieldSimilarity extends PerFieldSimilarityWrapper {
+
+        @Override
+        public Similarity get(String name) {
+            FieldMapper mapper = mapperService.smartNameFieldMapper(name);
+            return (mapper != null && mapper.indexSimilarity() != null) ? mapper.indexSimilarity() : defaultIndexSimilarity;
+        }
+    }
+
+    private class SearchPerFieldSimilarity extends PerFieldSimilarityWrapper {
+
+        @Override
+        public Similarity get(String name) {
+            FieldMapper mapper = mapperService.smartNameFieldMapper(name);
+            return (mapper != null && mapper.searchSimilarity() != null) ? mapper.searchSimilarity() : defaultSearchSimilarity;
+        }
     }
 }

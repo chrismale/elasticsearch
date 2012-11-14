@@ -118,7 +118,7 @@ public class RoutingFieldMapper extends AbstractFieldMapper<String> implements I
 
     protected RoutingFieldMapper(FieldType fieldType, boolean required, String path) {
         super(new Names(Defaults.NAME, Defaults.NAME, Defaults.NAME, Defaults.NAME), 1.0f, fieldType, Lucene.KEYWORD_ANALYZER,
-                Lucene.KEYWORD_ANALYZER);
+                Lucene.KEYWORD_ANALYZER, null, null);
         this.required = required;
         this.path = path;
     }

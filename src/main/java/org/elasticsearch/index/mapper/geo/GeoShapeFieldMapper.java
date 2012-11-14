@@ -136,7 +136,7 @@ public class GeoShapeFieldMapper extends AbstractFieldMapper<String> {
     private final SpatialStrategy spatialStrategy;
 
     public GeoShapeFieldMapper(FieldMapper.Names names, SpatialPrefixTree prefixTree, double distanceErrorPct, FieldType fieldType) {
-        super(names, 1, fieldType, null, null);
+        super(names, 1, fieldType, null, null, null, null);
         this.spatialStrategy = new TermQueryPrefixTreeStrategy(names, prefixTree, distanceErrorPct);
     }
 

@@ -102,7 +102,7 @@ public class SizeFieldMapper extends IntegerFieldMapper implements RootMapper {
     public SizeFieldMapper(boolean enabled, FieldType fieldType) {
         super(new Names(Defaults.NAME), Defaults.PRECISION_STEP, Defaults.FUZZY_FACTOR,
                 Defaults.BOOST, fieldType, Defaults.NULL_VALUE,
-                Defaults.IGNORE_MALFORMED);
+                Defaults.IGNORE_MALFORMED, null, null);
         this.enabled = enabled;
     }
 

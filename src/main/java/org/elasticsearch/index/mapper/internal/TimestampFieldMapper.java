@@ -30,6 +30,7 @@ import org.elasticsearch.index.mapper.*;
 import org.elasticsearch.index.mapper.core.DateFieldMapper;
 import org.elasticsearch.index.mapper.core.LongFieldMapper;
 import org.elasticsearch.index.mapper.core.NumberFieldMapper;
+import org.elasticsearch.index.similarity.NamedSimilarity;
 
 import java.io.IOException;
 import java.util.Map;
@@ -96,7 +97,7 @@ public class TimestampFieldMapper extends DateFieldMapper implements InternalMap
             if (context.indexSettings() != null) {
                 parseUpperInclusive = context.indexSettings().getAsBoolean("index.mapping.date.parse_upper_inclusive", Defaults.PARSE_UPPER_INCLUSIVE);
             }
-            return new TimestampFieldMapper(fieldType, enabled, path, dateTimeFormatter, parseUpperInclusive, ignoreMalformed(context));
+            return new TimestampFieldMapper(fieldType, enabled, path, dateTimeFormatter, parseUpperInclusive, ignoreMalformed(context), indexSimilarity, searchSimilarity);
         }
     }
 
@@ -126,15 +127,16 @@ public class TimestampFieldMapper extends DateFieldMapper implements InternalMap
     private final String path;
 
     public TimestampFieldMapper() {
-        this(new FieldType(Defaults.TIMESTAMP_FIELD_TYPE), Defaults.ENABLED, Defaults.PATH, Defaults.DATE_TIME_FORMATTER, Defaults.PARSE_UPPER_INCLUSIVE, Defaults.IGNORE_MALFORMED);
+        this(new FieldType(Defaults.TIMESTAMP_FIELD_TYPE), Defaults.ENABLED, Defaults.PATH, Defaults.DATE_TIME_FORMATTER, Defaults.PARSE_UPPER_INCLUSIVE, Defaults.IGNORE_MALFORMED, null, null);
     }
 
     protected TimestampFieldMapper(FieldType fieldType, boolean enabled, String path,
-                                   FormatDateTimeFormatter dateTimeFormatter, boolean parseUpperInclusive, Explicit<Boolean> ignoreMalformed) {
+                                   FormatDateTimeFormatter dateTimeFormatter, boolean parseUpperInclusive, Explicit<Boolean> ignoreMalformed,
+                                   NamedSimilarity indexSimilarity, NamedSimilarity searchSimilarity) {
         super(new Names(Defaults.NAME, Defaults.NAME, Defaults.NAME, Defaults.NAME), dateTimeFormatter,
                 Defaults.PRECISION_STEP, Defaults.FUZZY_FACTOR, Defaults.BOOST, fieldType,
                 Defaults.NULL_VALUE, TimeUnit.MILLISECONDS /*always milliseconds*/,
-                parseUpperInclusive, ignoreMalformed);
+                parseUpperInclusive, ignoreMalformed, indexSimilarity, searchSimilarity);
         this.enabled = enabled;
         this.path = path;
     }

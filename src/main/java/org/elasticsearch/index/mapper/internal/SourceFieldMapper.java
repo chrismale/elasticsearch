@@ -25,6 +25,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.FieldInfo.IndexOptions;
+import org.apache.lucene.search.similarities.Similarity;
 import org.elasticsearch.ElasticSearchParseException;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.bytes.BytesArray;
@@ -198,7 +199,7 @@ public class SourceFieldMapper extends AbstractFieldMapper<byte[]> implements In
     }
 
     protected SourceFieldMapper(String name, boolean enabled, String format, Boolean compress, long compressThreshold, String[] includes, String[] excludes) {
-        super(new Names(name, name, name, name), Defaults.BOOST, new FieldType(Defaults.SOURCE_FIELD_TYPE), Lucene.KEYWORD_ANALYZER, Lucene.KEYWORD_ANALYZER);
+        super(new Names(name, name, name, name), Defaults.BOOST, new FieldType(Defaults.SOURCE_FIELD_TYPE), Lucene.KEYWORD_ANALYZER, Lucene.KEYWORD_ANALYZER, null, null);
         this.enabled = enabled;
         this.compress = compress;
         this.compressThreshold = compressThreshold;

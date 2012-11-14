@@ -25,6 +25,7 @@ import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.index.analysis.AnalysisService;
+import org.elasticsearch.index.similarity.SimilarityLookupService;
 
 import java.io.IOException;
 import java.util.Map;
@@ -77,16 +78,23 @@ public interface Mapper extends ToXContent {
         public static class ParserContext {
 
             private final AnalysisService analysisService;
+            private final SimilarityLookupService similarityLookupService;
 
             private final ImmutableMap<String, TypeParser> typeParsers;
 
-            public ParserContext(AnalysisService analysisService, ImmutableMap<String, TypeParser> typeParsers) {
+            public ParserContext(AnalysisService analysisService, SimilarityLookupService similarityLookupService,
+                                 ImmutableMap<String, TypeParser> typeParsers) {
                 this.analysisService = analysisService;
+                this.similarityLookupService = similarityLookupService;
                 this.typeParsers = typeParsers;
             }
 
             public AnalysisService analysisService() {
                 return analysisService;
+            }
+
+            public SimilarityLookupService similarityLookupService() {
+                return similarityLookupService;
             }
 
             public TypeParser typeParser(String type) {

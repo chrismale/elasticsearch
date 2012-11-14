@@ -33,6 +33,8 @@ import org.elasticsearch.index.analysis.AnalysisService;
 import org.elasticsearch.index.mapper.DocumentMapperParser;
 import org.elasticsearch.index.mapper.MapperService;
 import org.elasticsearch.index.settings.IndexSettingsModule;
+import org.elasticsearch.index.similarity.SimilarityLookupService;
+import org.elasticsearch.index.similarity.SimilarityModule;
 import org.elasticsearch.indices.analysis.IndicesAnalysisModule;
 import org.elasticsearch.indices.analysis.IndicesAnalysisService;
 
@@ -42,15 +44,15 @@ import org.elasticsearch.indices.analysis.IndicesAnalysisService;
 public class MapperTests {
 
     public static DocumentMapperParser newParser() {
-        return new DocumentMapperParser(new Index("test"), newAnalysisService());
+        return new DocumentMapperParser(new Index("test"), newAnalysisService(), newSimilarityLookupService());
     }
 
     public static DocumentMapperParser newParser(Settings indexSettings) {
-        return new DocumentMapperParser(new Index("test"), indexSettings, newAnalysisService());
+        return new DocumentMapperParser(new Index("test"), indexSettings, newAnalysisService(), newSimilarityLookupService());
     }
 
     public static MapperService newMapperService() {
-        return new MapperService(new Index("test"), ImmutableSettings.Builder.EMPTY_SETTINGS, new Environment(), newAnalysisService());
+        return new MapperService(new Index("test"), ImmutableSettings.Builder.EMPTY_SETTINGS, new Environment(), newAnalysisService(), newSimilarityLookupService());
     }
 
     public static AnalysisService newAnalysisService() {
@@ -61,5 +63,14 @@ public class MapperTests {
                 new AnalysisModule(ImmutableSettings.Builder.EMPTY_SETTINGS, parentInjector.getInstance(IndicesAnalysisService.class))).createChildInjector(parentInjector);
 
         return injector.getInstance(AnalysisService.class);
+    }
+
+    public static SimilarityLookupService newSimilarityLookupService() {
+        Injector injector = new ModulesBuilder().add(
+                new IndexSettingsModule(new Index("test"), ImmutableSettings.Builder.EMPTY_SETTINGS),
+                new IndexNameModule(new Index("test")),
+                new SimilarityModule(ImmutableSettings.Builder.EMPTY_SETTINGS)).createInjector();
+
+        return injector.getInstance(SimilarityLookupService.class);
     }
 }

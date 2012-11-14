@@ -25,6 +25,7 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.FieldInfo.IndexOptions;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.similarities.Similarity;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.NumericUtils;
 import org.elasticsearch.common.Explicit;
@@ -36,6 +37,7 @@ import org.elasticsearch.index.field.data.FieldDataType;
 import org.elasticsearch.index.mapper.*;
 import org.elasticsearch.index.mapper.internal.AllFieldMapper;
 import org.elasticsearch.index.query.QueryParseContext;
+import org.elasticsearch.index.similarity.NamedSimilarity;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -94,6 +96,21 @@ public abstract class NumberFieldMapper<T extends Number> extends AbstractFieldM
             return super.includeInAll(includeInAll);
         }
 
+        @Override
+        public T indexSimilarity(NamedSimilarity similarity) {
+            return super.indexSimilarity(similarity);
+        }
+
+        @Override
+        public T searchSimilarity(NamedSimilarity similarity) {
+            return super.searchSimilarity(similarity);
+        }
+
+        @Override
+        public T similarity(NamedSimilarity similarity) {
+            return super.similarity(similarity);
+        }
+
         public T precisionStep(int precisionStep) {
             this.precisionStep = precisionStep;
             return builder;
@@ -139,9 +156,10 @@ public abstract class NumberFieldMapper<T extends Number> extends AbstractFieldM
 
     protected NumberFieldMapper(Names names, int precisionStep, @Nullable String fuzzyFactor,
                                 float boost, FieldType fieldType,
-                                Explicit<Boolean> ignoreMalformed, NamedAnalyzer indexAnalyzer, NamedAnalyzer searchAnalyzer) {
+                                Explicit<Boolean> ignoreMalformed, NamedAnalyzer indexAnalyzer, NamedAnalyzer searchAnalyzer,
+                                NamedSimilarity indexSimilarity, NamedSimilarity searchSimilarity) {
         // LUCENE 4 UPGRADE: Since we can't do anything before the super call, we have to push the boost check down to subclasses
-        super(names, boost, fieldType, indexAnalyzer, searchAnalyzer);
+        super(names, boost, fieldType, indexAnalyzer, searchAnalyzer, indexSimilarity, searchSimilarity);
         if (precisionStep <= 0 || precisionStep >= maxPrecisionStep()) {
             this.precisionStep = Integer.MAX_VALUE;
         } else {

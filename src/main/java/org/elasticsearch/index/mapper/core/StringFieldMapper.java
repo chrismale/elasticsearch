@@ -32,6 +32,7 @@ import org.elasticsearch.index.analysis.NamedAnalyzer;
 import org.elasticsearch.index.analysis.NamedCustomAnalyzer;
 import org.elasticsearch.index.mapper.*;
 import org.elasticsearch.index.mapper.internal.AllFieldMapper;
+import org.elasticsearch.index.similarity.NamedSimilarity;
 
 import java.io.IOException;
 import java.util.Map;
@@ -129,7 +130,7 @@ public class StringFieldMapper extends AbstractFieldMapper<String> implements Al
             }
             StringFieldMapper fieldMapper = new StringFieldMapper(buildNames(context),
                     boost, fieldType, nullValue,
-                    indexAnalyzer, searchAnalyzer, searchQuotedAnalyzer, positionOffsetGap, ignoreAbove);
+                    indexAnalyzer, searchAnalyzer, searchQuotedAnalyzer, indexSimilarity, searchSimilarity, positionOffsetGap, ignoreAbove);
             fieldMapper.includeInAll(includeInAll);
             return fieldMapper;
         }
@@ -183,15 +184,17 @@ public class StringFieldMapper extends AbstractFieldMapper<String> implements Al
     private int ignoreAbove;
 
     protected StringFieldMapper(Names names, float boost, FieldType fieldType,
-                                String nullValue, NamedAnalyzer indexAnalyzer, NamedAnalyzer searchAnalyzer) {
+                                String nullValue, NamedAnalyzer indexAnalyzer, NamedAnalyzer searchAnalyzer,
+                                NamedSimilarity indexSimilarity, NamedSimilarity searchSimilarity) {
         this(names, boost, fieldType, nullValue, indexAnalyzer,
-                searchAnalyzer, searchAnalyzer, Defaults.POSITION_OFFSET_GAP, Defaults.IGNORE_ABOVE);
+                searchAnalyzer, searchAnalyzer, indexSimilarity, searchSimilarity, Defaults.POSITION_OFFSET_GAP, Defaults.IGNORE_ABOVE);
     }
 
     protected StringFieldMapper(Names names, float boost, FieldType fieldType,
                                 String nullValue, NamedAnalyzer indexAnalyzer, NamedAnalyzer searchAnalyzer,
-                                NamedAnalyzer searchQuotedAnalyzer, int positionOffsetGap, int ignoreAbove) {
-        super(names, boost, fieldType, indexAnalyzer, searchAnalyzer);
+                                NamedAnalyzer searchQuotedAnalyzer, NamedSimilarity indexSimilarity, NamedSimilarity searchSimilarity,
+                                int positionOffsetGap, int ignoreAbove) {
+        super(names, boost, fieldType, indexAnalyzer, searchAnalyzer, indexSimilarity, searchSimilarity);
         this.nullValue = nullValue;
         this.positionOffsetGap = positionOffsetGap;
         this.searchQuotedAnalyzer = searchQuotedAnalyzer != null ? searchQuotedAnalyzer : this.searchAnalyzer;

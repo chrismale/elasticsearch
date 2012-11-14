@@ -31,6 +31,7 @@ import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.index.mapper.Mapper;
 import org.elasticsearch.index.mapper.MapperParsingException;
 import org.elasticsearch.index.mapper.ParseContext;
+import org.elasticsearch.index.similarity.NamedSimilarity;
 
 import java.io.IOException;
 import java.util.Map;
@@ -111,10 +112,24 @@ public class BooleanFieldMapper extends AbstractFieldMapper<Boolean> {
             return super.indexName(indexName);
         }
 
+        @Override
+        public Builder indexSimilarity(NamedSimilarity similarity) {
+            return super.indexSimilarity(similarity);
+        }
+
+        @Override
+        public Builder searchSimilarity(NamedSimilarity similarity) {
+            return super.searchSimilarity(similarity);
+        }
+
+        @Override
+        public Builder similarity(NamedSimilarity similarity) {
+            return super.similarity(similarity);
+        }
 
         @Override
         public BooleanFieldMapper build(BuilderContext context) {
-            return new BooleanFieldMapper(buildNames(context), boost, fieldType, nullValue);
+            return new BooleanFieldMapper(buildNames(context), boost, fieldType, nullValue, indexSimilarity, searchSimilarity);
         }
     }
 
@@ -136,8 +151,9 @@ public class BooleanFieldMapper extends AbstractFieldMapper<Boolean> {
 
     private Boolean nullValue;
 
-    protected BooleanFieldMapper(Names names, float boost, FieldType fieldType, Boolean nullValue) {
-        super(names, boost, fieldType, Lucene.KEYWORD_ANALYZER, Lucene.KEYWORD_ANALYZER);
+    protected BooleanFieldMapper(Names names, float boost, FieldType fieldType, Boolean nullValue,
+                                 NamedSimilarity indexSimilarity, NamedSimilarity searchSimilarity) {
+        super(names, boost, fieldType, Lucene.KEYWORD_ANALYZER, Lucene.KEYWORD_ANALYZER, indexSimilarity, searchSimilarity);
         this.nullValue = nullValue;
     }
 

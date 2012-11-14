@@ -120,7 +120,7 @@ public class BoostFieldMapper extends NumberFieldMapper<Float> implements Intern
                                float boost, FieldType fieldType, Float nullValue) {
         super(new Names(name, indexName, indexName, name), precisionStep, null, boost, fieldType,
                 Defaults.IGNORE_MALFORMED, new NamedAnalyzer("_float/" + precisionStep, new NumericFloatAnalyzer(precisionStep)),
-                new NamedAnalyzer("_float/max", new NumericFloatAnalyzer(Integer.MAX_VALUE)));
+                new NamedAnalyzer("_float/max", new NumericFloatAnalyzer(Integer.MAX_VALUE)), null, null);
         this.nullValue = nullValue;
     }
 

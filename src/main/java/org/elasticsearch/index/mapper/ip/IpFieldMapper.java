@@ -42,6 +42,7 @@ import org.elasticsearch.index.mapper.core.LongFieldMapper;
 import org.elasticsearch.index.mapper.core.NumberFieldMapper;
 import org.elasticsearch.index.query.QueryParseContext;
 import org.elasticsearch.index.search.NumericRangeFieldDataFilter;
+import org.elasticsearch.index.similarity.NamedSimilarity;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -112,7 +113,7 @@ public class IpFieldMapper extends NumberFieldMapper<Long> {
         public IpFieldMapper build(BuilderContext context) {
             fieldType.setOmitNorms(fieldType.omitNorms() && boost == 1.0f);
             IpFieldMapper fieldMapper = new IpFieldMapper(buildNames(context),
-                    precisionStep, boost, fieldType, nullValue, ignoreMalformed(context));
+                    precisionStep, boost, fieldType, nullValue, ignoreMalformed(context), indexSimilarity, searchSimilarity);
             fieldMapper.includeInAll(includeInAll);
             return fieldMapper;
         }
@@ -138,10 +139,10 @@ public class IpFieldMapper extends NumberFieldMapper<Long> {
 
     protected IpFieldMapper(Names names, int precisionStep,
                             float boost, FieldType fieldType,
-                            String nullValue, Explicit<Boolean> ignoreMalformed) {
+                            String nullValue, Explicit<Boolean> ignoreMalformed, NamedSimilarity indexSimilarity, NamedSimilarity searchSimilarity) {
         super(names, precisionStep, null, boost, fieldType,
                 ignoreMalformed, new NamedAnalyzer("_ip/" + precisionStep, new NumericIpAnalyzer(precisionStep)),
-                new NamedAnalyzer("_ip/max", new NumericIpAnalyzer(Integer.MAX_VALUE)));
+                new NamedAnalyzer("_ip/max", new NumericIpAnalyzer(Integer.MAX_VALUE)), indexSimilarity, searchSimilarity);
         this.nullValue = nullValue;
     }
 

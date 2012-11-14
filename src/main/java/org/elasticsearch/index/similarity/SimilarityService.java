@@ -64,11 +64,11 @@ public class SimilarityService extends AbstractIndexComponent {
         this.searchSimilarity = new SearchPerFieldSimilarity();
     }
 
-    public Similarity defaultIndexSimilarity() {
+    public Similarity indexSimilarity() {
         return indexSimilarity;
     }
 
-    public Similarity defaultSearchSimilarity() {
+    public Similarity searchSimilarity() {
         return searchSimilarity;
     }
 

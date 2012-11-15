@@ -79,7 +79,7 @@ public class TypeFieldMapper extends AbstractFieldMapper<String> implements Inte
 
         @Override
         public TypeFieldMapper build(BuilderContext context) {
-            return new TypeFieldMapper(name, indexName, boost, fieldType, indexSimilarity, searchSimilarity);
+            return new TypeFieldMapper(name, indexName, boost, fieldType);
         }
     }
 
@@ -98,12 +98,12 @@ public class TypeFieldMapper extends AbstractFieldMapper<String> implements Inte
     }
 
     protected TypeFieldMapper(String name, String indexName) {
-        this(name, indexName, Defaults.BOOST, new FieldType(Defaults.TYPE_FIELD_TYPE), null, null);
+        this(name, indexName, Defaults.BOOST, new FieldType(Defaults.TYPE_FIELD_TYPE));
     }
 
-    public TypeFieldMapper(String name, String indexName, float boost, FieldType fieldType, NamedSimilarity indexSimilarity, NamedSimilarity searchSimilarity) {
+    public TypeFieldMapper(String name, String indexName, float boost, FieldType fieldType) {
         super(new Names(name, indexName, indexName, name), boost, fieldType, Lucene.KEYWORD_ANALYZER,
-                Lucene.KEYWORD_ANALYZER, indexSimilarity, searchSimilarity);
+                Lucene.KEYWORD_ANALYZER, null, null);
     }
 
     public String value(Document document) {

@@ -29,7 +29,6 @@ import org.elasticsearch.common.lucene.Lucene;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.mapper.*;
 import org.elasticsearch.index.mapper.core.AbstractFieldMapper;
-import org.elasticsearch.index.similarity.NamedSimilarity;
 
 import java.io.IOException;
 import java.util.Map;
@@ -80,7 +79,7 @@ public class IndexFieldMapper extends AbstractFieldMapper<String> implements Int
 
         @Override
         public IndexFieldMapper build(BuilderContext context) {
-            return new IndexFieldMapper(name, indexName, boost, fieldType, enabled, indexSimilarity, searchSimilarity);
+            return new IndexFieldMapper(name, indexName, boost, fieldType, enabled);
         }
     }
 
@@ -108,13 +107,12 @@ public class IndexFieldMapper extends AbstractFieldMapper<String> implements Int
     }
 
     protected IndexFieldMapper(String name, String indexName) {
-        this(name, indexName, Defaults.BOOST, new FieldType(Defaults.INDEX_FIELD_TYPE), Defaults.ENABLED, null, null);
+        this(name, indexName, Defaults.BOOST, new FieldType(Defaults.INDEX_FIELD_TYPE), Defaults.ENABLED);
     }
 
-    public IndexFieldMapper(String name, String indexName, float boost, FieldType fieldType, boolean enabled,
-                            NamedSimilarity indexSimilarity, NamedSimilarity searchSimilarity) {
+    public IndexFieldMapper(String name, String indexName, float boost, FieldType fieldType, boolean enabled) {
         super(new Names(name, indexName, indexName, name), boost, fieldType, Lucene.KEYWORD_ANALYZER,
-                Lucene.KEYWORD_ANALYZER, indexSimilarity, searchSimilarity);
+                Lucene.KEYWORD_ANALYZER, null, null);
         this.enabled = enabled;
     }
 

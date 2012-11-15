@@ -286,6 +286,12 @@ public class AllFieldMapper extends AbstractFieldMapper<Void> implements Interna
                 builder.field("search_analyzer", searchAnalyzer.name());
             }
         }
+        if (indexSimilarity() != null) {
+            builder.field("index_similarity", indexSimilarity().name());
+        }
+        if (searchSimilarity() != null) {
+            builder.field("search_similarity", searchSimilarity().name());
+        }
         builder.endObject();
         return builder;
     }

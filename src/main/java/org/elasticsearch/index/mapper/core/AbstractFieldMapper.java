@@ -384,12 +384,12 @@ public abstract class AbstractFieldMapper<T> implements FieldMapper<T>, Mapper {
     }
 
     @Override
-    public Similarity indexSimilarity() {
+    public NamedSimilarity indexSimilarity() {
         return indexSimilarity;
     }
 
     @Override
-    public Similarity searchSimilarity() {
+    public NamedSimilarity searchSimilarity() {
         return searchSimilarity;
     }
 
@@ -558,11 +558,24 @@ public abstract class AbstractFieldMapper<T> implements FieldMapper<T>, Mapper {
             mergeContext.addConflict("mapper [" + names.fullName() + "] has different search_analyzer");
         } else if (!this.searchAnalyzer.name().equals(fieldMergeWith.searchAnalyzer.name())) {
             mergeContext.addConflict("mapper [" + names.fullName() + "] has different search_analyzer");
+        } else if (!similarityEquals(this.indexSimilarity(), fieldMergeWith.indexSimilarity())) {
+            mergeContext.addConflict("mapper [" + names.fullName() + "] has different index_similarity");
+        } else if (!similarityEquals(this.searchSimilarity(), fieldMergeWith.searchSimilarity())) {
+            mergeContext.addConflict("mapper [" + names.fullName() + "] has different search_similarity");
         }
         if (!mergeContext.mergeFlags().simulate()) {
             // apply changeable values
             this.boost = fieldMergeWith.boost;
         }
+    }
+
+    private boolean similarityEquals(Similarity a, Similarity b) {
+        if (a == null && b != null) {
+            return false;
+        } else if (b == null) {
+            return false;
+        }
+        return a.equals(b);
     }
 
     @Override

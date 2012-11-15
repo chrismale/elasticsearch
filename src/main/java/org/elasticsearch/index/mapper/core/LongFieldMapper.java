@@ -356,6 +356,12 @@ public class LongFieldMapper extends NumberFieldMapper<Long> {
         if (fuzzyFactor != Defaults.FUZZY_FACTOR) {
             builder.field("fuzzy_factor", fuzzyFactor);
         }
+        if (indexSimilarity() != null) {
+            builder.field("index_similarity", indexSimilarity().name());
+        }
+        if (searchSimilarity() != null) {
+            builder.field("search_similarity", searchSimilarity().name());
+        }
         if (nullValue != null) {
             builder.field("null_value", nullValue);
         }

@@ -361,6 +361,12 @@ public class StringFieldMapper extends AbstractFieldMapper<String> implements Al
         if (searchQuotedAnalyzer != null && searchAnalyzer != searchQuotedAnalyzer) {
             builder.field("search_quote_analyzer", searchQuotedAnalyzer.name());
         }
+        if (indexSimilarity() != null) {
+            builder.field("index_similarity", indexSimilarity().name());
+        }
+        if (searchSimilarity() != null) {
+            builder.field("search_similarity", searchSimilarity().name());
+        }
         if (ignoreAbove != Defaults.IGNORE_ABOVE) {
             builder.field("ignore_above", ignoreAbove);
         }

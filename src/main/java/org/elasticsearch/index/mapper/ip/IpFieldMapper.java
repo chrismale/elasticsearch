@@ -330,6 +330,12 @@ public class IpFieldMapper extends NumberFieldMapper<Long> {
         if (precisionStep != Defaults.PRECISION_STEP) {
             builder.field("precision_step", precisionStep);
         }
+        if (indexSimilarity() != null) {
+            builder.field("index_similarity", indexSimilarity().name());
+        }
+        if (searchSimilarity() != null) {
+            builder.field("search_similarity", searchSimilarity().name());
+        }
         if (nullValue != null) {
             builder.field("null_value", nullValue);
         }

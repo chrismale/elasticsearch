@@ -65,11 +65,11 @@ public class SimilarityModule extends AbstractModule {
             similarityBinder.addBinding(similarityName).to(similarityClass).in(Scopes.SINGLETON);
         }
 
-        bind(SimilarityLookupService.class).in(Scopes.SINGLETON);
+        bind(SimilarityLookupService.class).asEagerSingleton();
 
         // TODO: Make defaults configurable
         bind(Similarity.class).annotatedWith(Names.named("default_index")).to(DefaultSimilarity.class);
         bind(Similarity.class).annotatedWith(Names.named("default_search")).to(DefaultSimilarity.class);
-        bind(SimilarityService.class).in(Scopes.SINGLETON);
+        bind(SimilarityService.class).asEagerSingleton();
     }
 }
